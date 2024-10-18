@@ -1,0 +1,14 @@
+Tares a realizar.
+
+
+- Agregar en el código base las modificaciones para las variables de entorno /Listo
+
+- Realizar Diagrama de clases para usar como guía para el proyecto /Listo
+- Crear la Base de Datos /Listo
+- Insertar Ejemplos en la Base de Datos /Listo
+- Generar Script para compartir /Listo
+
+- Completar los MODELOS usando como guía el Diagrama /Listo POR EL MOMENTO
+- "Configurar" el contexto para que el programa corra /Listo
+- Completar los archivos de INTERFACES
+- Completar los archivos de CONTROLLERS
