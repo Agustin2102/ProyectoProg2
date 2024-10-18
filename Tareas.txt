@@ -8,7 +8,8 @@ Tares a realizar.
 - Insertar Ejemplos en la Base de Datos /Listo
 - Generar Script para compartir /Listo
 
-- Completar los MODELOS usando como guía el Diagrama /Listo POR EL MOMENTO
+- Completar los MODELOS usando como guía el Diagrama /Listo POR EL MOMENTO, CONSULTAR
 - "Configurar" el contexto para que el programa corra /Listo
-- Completar los archivos de INTERFACES
+- Completar los archivos de INTERFACES con los métodos que puede realizar a los Modelos /Listo CONSULTAR
+- Completar los archivos de la carpeta DTOs /Listo , CONSULTAR
 - Completar los archivos de CONTROLLERS
