@@ -1,0 +1,153 @@
+/*
+CREATE DATABASE ClinicaDb;
+GO
+
+-- Usar la base de datos
+USE ClinicaDb;
+GO
+
+*/
+
+-- Creacion Tabla Paciente
+CREATE TABLE Patient (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    DNI INT NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(15),
+    birth_date DATETIME NOT NULL,
+    address VARCHAR(255),
+    medical_history TEXT
+);
+GO
+
+-- Creacion Tabla Administrador
+CREATE TABLE Administrator (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    DNI INT NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(15)
+);
+GO
+
+CREATE TABLE Doctor (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    DNI INT NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(15),
+    license_number INT NOT NULL UNIQUE
+);
+GO
+
+-- Creacion Tabla Especialidad
+CREATE TABLE Specialty (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    name VARCHAR(100) NOT NULL
+);
+
+-- Creacion Tabla Media Doctor/Especialidad
+CREATE TABLE Doctor_Specialty (
+    doctor_id INT,
+    specialty_id INT,
+    PRIMARY KEY (doctor_id, specialty_id),
+    FOREIGN KEY (doctor_id) REFERENCES Doctor(ID),
+    FOREIGN KEY (specialty_id) REFERENCES Specialty(ID)
+);
+GO
+
+-- Creacion Tabla Turno
+CREATE TABLE Appointment (
+    ID INT PRIMARY KEY IDENTITY(1,1),
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    specialty_id INT NOT NULL,
+    appointment_date DATETIME NOT NULL,
+    status VARCHAR(50) CHECK (status IN ('scheduled', 'completed', 'canceled')),
+    FOREIGN KEY (patient_id) REFERENCES Patient(ID),
+    FOREIGN KEY (doctor_id) REFERENCES Doctor(ID),
+    FOREIGN KEY (specialty_id) REFERENCES Specialty(ID)
+);
+GO
+
+
+
+-- Insertar ejemplos en la tabla de Patients (Pacientes)
+INSERT INTO Patient (first_name, last_name, DNI, email, phone, birth_date, address, medical_history) VALUES
+('John', 'Doe', 12345678, 'john.doe@example.com', '555-1234', '1980-01-15', '123 Main St', 'No allergies'),
+('Jane', 'Smith', 87654321, 'jane.smith@example.com', '555-5678', '1990-03-22', '456 Oak St', 'Asthma'),
+('Alice', 'Johnson', 12348765, 'alice.johnson@example.com', '555-8765', '1975-05-10', '789 Pine St', 'Diabetes'),
+('Bob', 'Brown', 11223344, 'bob.brown@example.com', '555-3344', '1968-07-30', '321 Maple St', 'Hypertension'),
+('Cathy', 'Davis', 55667788, 'cathy.davis@example.com', '555-7788', '1985-11-05', '654 Elm St', 'No known conditions'),
+('David', 'Wilson', 99887766, 'david.wilson@example.com', '555-7766', '1982-08-18', '987 Cedar St', 'Anemia'),
+('Eve', 'Miller', 11225577, 'eve.miller@example.com', '555-5577', '1992-12-01', '159 Walnut St', 'Allergic to penicillin'),
+('Frank', 'Taylor', 77889900, 'frank.taylor@example.com', '555-9900', '1979-06-14', '753 Birch St', 'Migraines'),
+('Grace', 'Anderson', 44556677, 'grace.anderson@example.com', '555-6677', '1983-09-25', '852 Redwood St', 'Gluten intolerance'),
+('Hank', 'Thomas', 22446688, 'hank.thomas@example.com', '555-6688', '1987-04-09', '951 Spruce St', 'Healthy');
+GO
+
+-- Insertar ejemplos en la tabla de Admins (Administradores)
+INSERT INTO Administrator(first_name, last_name, DNI, email, phone) VALUES
+('Admin1', 'User', 99988877, 'admin1@example.com', '555-9876'),
+('Admin2', 'Manager', 99988866, 'admin2@example.com', '555-8765'),
+('Admin3', 'Supervisor', 99988855, 'admin3@example.com', '555-7654'),
+('Admin4', 'Director', 99988844, 'admin4@example.com', '555-6543'),
+('Admin5', 'Coordinator', 99988833, 'admin5@example.com', '555-5432'),
+('Admin6', 'Assistant', 99988822, 'admin6@example.com', '555-4321'),
+('Admin7', 'Lead', 99988811, 'admin7@example.com', '555-3210'),
+('Admin8', 'Executive', 99988800, 'admin8@example.com', '555-2109'),
+('Admin9', 'Officer', 99988799, 'admin9@example.com', '555-1098'),
+('Admin10', 'Clerk', 99988788, 'admin10@example.com', '555-0987');
+GO
+
+-- Insertar ejemplos en la tabla de Doctors (Médicos)
+INSERT INTO Doctor (first_name, last_name, DNI, email, phone, license_number) VALUES
+('Dr. Adam', 'White', 33322211, 'adam.white@example.com', '555-4322', 1001),
+('Dr. Beth', 'Green', 33445566, 'beth.green@example.com', '555-7653', 1002),
+('Dr. Carl', 'Black', 77665544, 'carl.black@example.com', '555-9988', 1003),
+('Dr. Dana', 'Blue', 55443322, 'dana.blue@example.com', '555-4433', 1004),
+('Dr. Eric', 'Red', 22113344, 'eric.red@example.com', '555-5566', 1005),
+('Dr. Fiona', 'Purple', 44556633, 'fiona.purple@example.com', '555-2244', 1006),
+('Dr. George', 'Yellow', 22334455, 'george.yellow@example.com', '555-6677', 1007),
+('Dr. Holly', 'Brown', 66778899, 'holly.brown@example.com', '555-8899', 1008),
+('Dr. Ian', 'Gray', 99887711, 'ian.gray@example.com', '555-1122', 1009),
+('Dr. Julia', 'Pink', 55667722, 'julia.pink@example.com', '555-3344', 1010);
+GO
+
+-- Insertar ejemplos en la tabla de Specialties (Especialidades)
+INSERT INTO Specialty (name) VALUES
+('Cardiology'),
+('Dermatology'),
+('Pediatrics'),
+('Neurology'),
+('Orthopedics'),
+('Psychiatry'),
+('Gynecology'),
+('Oncology'),
+('Ophthalmology'),
+('General Medicine');
+GO
+
+-- Insertar ejemplos en la tabla de relación Doctor_Specialty
+INSERT INTO Doctor_Specialty (doctor_id, specialty_id) VALUES
+(1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+(6, 6), (7, 7), (8, 8), (9, 9), (10, 10);
+GO
+
+-- Insertar ejemplos en la tabla de Appointments (Turnos)
+INSERT INTO Appointment (patient_id, doctor_id, specialty_id, appointment_date, status) VALUES
+(1, 1, 1, '2024-10-20 09:00:00', 'scheduled'),
+(2, 2, 2, '2024-10-21 10:30:00', 'completed'),
+(3, 3, 3, '2024-10-22 11:00:00', 'scheduled'),
+(4, 4, 4, '2024-10-23 14:00:00', 'canceled'),
+(5, 5, 5, '2024-10-24 15:30:00', 'scheduled'),
+(6, 6, 6, '2024-10-25 09:00:00', 'completed'),
+(7, 7, 7, '2024-10-26 13:00:00', 'scheduled'),
+(8, 8, 8, '2024-10-27 10:00:00', 'canceled'),
+(9, 9, 9, '2024-10-28 11:30:00', 'scheduled'),
+(10, 10, 10, '2024-10-29 12:00:00', 'completed');
+GO
