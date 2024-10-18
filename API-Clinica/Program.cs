@@ -12,10 +12,13 @@ DotEnv.Load(dotenv);
 
 var builder = WebApplication.CreateBuilder(args);
 
+//añado los controladores
+builder.Services.AddControllers();
+
 //Creacion de la cadena de conexión a partir de las variables del sistema
 var connetionString = builder.Configuration.GetConnectionString("cnClinica");
 connetionString = connetionString.Replace("SERVER_NAME", builder.Configuration["SERVER_NAME"]);
-connetionString = connetionString.Replace("DB_NAME", builder.Configuration["DB_NAME"]);
+//connetionString = connetionString.Replace("DB_NAME", builder.Configuration["DB_NAME"]);
 connetionString = connetionString.Replace("DB_USER", builder.Configuration["DB_USER"]);
 connetionString = connetionString.Replace("DB_PASS", builder.Configuration["DB_PASS"]);
 
@@ -58,11 +61,11 @@ builder.Services.AddSwaggerGen(c =>
 
 
 
-//añado los controladores
-builder.Services.AddControllers();
 //Añado la conexion a la BD
 builder.Services.AddSqlServer<ClinicaContext>(connetionString);
 /*------AÑADIR LOS CONTENEDORES PARA LA INYECCION DE DEPENDENCIAS-----*/
+builder.Services.AddScoped<IDoctorService, DoctorDbService>();
+
 
 
 // Configurar el contexto para Identity (autenticación y autorización)

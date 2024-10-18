@@ -11,5 +11,7 @@ Tares a realizar.
 - Completar los MODELOS usando como guía el Diagrama /Listo POR EL MOMENTO, CONSULTAR
 - "Configurar" el contexto para que el programa corra /Listo
 - Completar los archivos de INTERFACES con los métodos que puede realizar a los Modelos /Listo CONSULTAR
+- Implementar las interfaces en la carpeta SERVICES (Para que se pueda compilar el código)
+- Definir cada una de los métodos de la interfaz
 - Completar los archivos de la carpeta DTOs /Listo , CONSULTAR
 - Completar los archivos de CONTROLLERS

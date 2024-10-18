@@ -1,4 +1,4 @@
-System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 public class DoctorDTO{
     //Agrego en el DTO los campos minimos que tengo que completar para poder crear el objeto
 
