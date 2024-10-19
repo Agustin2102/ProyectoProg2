@@ -62,7 +62,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 //Añado la conexion a la BD
-builder.Services.AddSqlServer<ClinicaContext>(connetionString);
+builder.Services.AddSqlServer<ClinicaContext>(builder.Configuration.GetConnectionString("cnClinica"));
 /*------AÑADIR LOS CONTENEDORES PARA LA INYECCION DE DEPENDENCIAS-----*/
 builder.Services.AddScoped<IDoctorService, DoctorDbService>();
 
@@ -70,7 +70,7 @@ builder.Services.AddScoped<IDoctorService, DoctorDbService>();
 
 // Configurar el contexto para Identity (autenticación y autorización)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connetionString));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("cnClinica")));
 
 // Configurar Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

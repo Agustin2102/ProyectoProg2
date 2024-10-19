@@ -7,4 +7,7 @@ public interface IDoctorService{
     public Doctor? Update(int id, Doctor a);
     public IEnumerable<Appointment> GetAppointment(int id);
 
+    //ModificarTurnos()?
+    //EliminarTurnos()?
+
 }

@@ -1,7 +1,7 @@
 Tares a realizar.
 
 
-- Agregar en el código base las modificaciones para las variables de entorno /Listo
+- Agregar en el código base las modificaciones para las variables de entorno /ERROR
 
 - Realizar Diagrama de clases para usar como guía para el proyecto /Listo
 - Crear la Base de Datos /Listo
@@ -15,3 +15,51 @@ Tares a realizar.
 - Definir cada una de los métodos de la interfaz
 - Completar los archivos de la carpeta DTOs /Listo , CONSULTAR
 - Completar los archivos de CONTROLLERS
+- Realizar la Autenticación y la Autorización de los usuarios
+- Definir los permisos que tiene cada usuario (decidir que recursos puede acceder un usuario)
+
+--------Falta Completar------------
+Pasos a realizar: 
+	1. (Clase)DbService -> Definir el Método
+	2. (Clase)Controller -> Terminar de definir el Método en el controlador
+	3. ClinicaContexr -> Construir el modelBuilder (Ósea hacer el mapeado de la BD)
+	4. Program -> Añadir el contenedor para la inyección de dependencias
+
+Doctor:
+	Get : Listo
+	GetByID : Listo
+	Create : Casi / Consultar como hacer para agregar la especialidad del doctor ya que puede tener muchas especialidades
+	DeleteByID
+	Update
+	GetAppointment
+
+Patient:
+	Get
+	GetByID
+	Create
+	DeleteByID
+	Update
+	GetAppointment
+
+Administrator:
+	Get
+	GetByID
+	Create
+	DeleteByID
+	Update
+	GetAppointment
+
+Appointment:
+	Get
+	GetByID
+	Create
+	DeleteByID
+	Update
+
+Specialty:
+	Get
+	GetByID
+	Create
+	DeleteByID
+	Update
+	

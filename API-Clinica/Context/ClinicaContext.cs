@@ -12,10 +12,14 @@ public class ClinicaContext : DbContext{
 
     //Realizo el mapeado de la base de datos
     protected override void OnModelCreating(ModelBuilder modelBuilder){
-        //modelBuilder.Entity<Doctor>(entity => {
-        //    entity.Property(d => d.Name);
-        //    entity.Property(d => d.LastName);
-        //});
+        modelBuilder.Entity<Doctor>(entity => {
+            entity.Property(d => d.Name).HasColumnName("first_name");
+            entity.Property(d => d.LastName).HasColumnName("last_name");
+            entity.Property(d => d.DNI).HasColumnName("DNI");
+            entity.Property(d => d.Email).HasColumnName("email");
+            entity.Property(d => d.TelephoneNumber).HasColumnName("phone");
+            entity.Property(d => d.LicenseNumber).HasColumnName("license_number");
+        });
     }
 
 }
