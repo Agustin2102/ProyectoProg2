@@ -17,6 +17,7 @@
 *.rar
 *.mdf
 *.ldf
+.env
 **/nuspec.list
 **/packages/
 **/.sass-cache/
