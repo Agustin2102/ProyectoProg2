@@ -9,17 +9,31 @@ public class AdministratorDbService : IAdministratorService{
 
     public Administrator Create(AdministratorDTO a)
     {
-        throw new NotImplementedException();
+        
+    Administrator administrator = new(){
+            Name = a.Name,
+            LastName = a.LastName,
+            DNI = a.DNI.Value,
+            Email = a.Email,
+            TelephoneNumber = a.TelephoneNumber,
+            
+        };
+        _context.Administrator.Add(administrator);
+        _context.SaveChanges();
+        return administrator;
     }
+   
 
     public void Delete(int id)
     {
-        throw new NotImplementedException();
+           var a = _context.Administrator.Find(id);
+        _context.Administrator.Remove(a);
+        _context.SaveChanges();
     }
 
     public IEnumerable<Administrator> GetAll()
     {
-        throw new NotImplementedException();
+         return _context.Administrator;
     }
 
     public IEnumerable<Appointment> GetAppointment(int id)
@@ -29,11 +43,13 @@ public class AdministratorDbService : IAdministratorService{
 
     public Administrator? GetById(int id)
     {
-        throw new NotImplementedException();
+        return _context.Administrator.Find(id);
     }
 
     public Administrator? Update(int id, Administrator a)
     {
-        throw new NotImplementedException();
+       _context.Entry(a).State = EntityState.Modified;
+        _context.SaveChanges();
+        return a;
     }
 }

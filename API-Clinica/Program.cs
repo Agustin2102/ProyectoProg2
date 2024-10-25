@@ -10,6 +10,7 @@ var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
 DotEnv.Load(dotenv);
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 //añado los controladores
@@ -65,6 +66,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddSqlServer<ClinicaContext>(builder.Configuration.GetConnectionString("cnClinica"));
 /*------AÑADIR LOS CONTENEDORES PARA LA INYECCION DE DEPENDENCIAS-----*/
 builder.Services.AddScoped<IDoctorService, DoctorDbService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentDbService>();
+builder.Services.AddScoped<IPatientService, PatientDbService>();
+builder.Services.AddScoped<IAdministratorService, AdministratorDbService>();
 
 
 
