@@ -26,11 +26,11 @@ Pasos a realizar:
 	4. Program -> Añadir el contenedor para la inyección de dependencias
 
 Doctor:
-	Get : Listo
+	Get : Listo / Falta mostrar las especialidades de los doctores
 	GetByID : Listo
 	Create : Casi / Consultar como hacer para agregar la especialidad del doctor ya que puede tener muchas especialidades
-	DeleteByID
-	Update
+	DeleteByID : Listo
+	Update : Listo
 	GetAppointment
 
 Patient:

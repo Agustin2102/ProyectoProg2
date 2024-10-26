@@ -19,4 +19,7 @@ public class DoctorDTO{
 
     [Required(ErrorMessage = "El campo LicenseNumber es requerido.")]
     public int? LicenseNumber { get; set; } // Número de licencia del Doctor
+
+    //[Required(ErrorMessage = "El campo Specialty es requerido.")]
+    //public virtual List<Specialty>? Specialty {get; set;} // Lista de Especialidades que tiene un doctor
 }

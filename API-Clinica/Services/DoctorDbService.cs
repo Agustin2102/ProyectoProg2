@@ -23,6 +23,7 @@ public class DoctorDbService : IDoctorService{
             Email = d.Email,
             TelephoneNumber = d.TelephoneNumber,
             LicenseNumber = d.LicenseNumber.Value
+            //Specialty = d.Specialty
         };
         _context.Doctor.Add(doctor);
         _context.SaveChanges();
@@ -30,7 +31,9 @@ public class DoctorDbService : IDoctorService{
     }
 
     public void Delete(int id){
-        throw new NotImplementedException();
+        var a = _context.Doctor.Find(id);
+        _context.Doctor.Remove(a);
+        _context.SaveChanges();
     }
 
     public IEnumerable<Doctor> GetAll(){
@@ -45,7 +48,19 @@ public class DoctorDbService : IDoctorService{
         return _context.Doctor.Find(id);
     }
 
-    public Doctor? Update(int id, Doctor a){
-        throw new NotImplementedException();
+    public Doctor? Update(int id, DoctorDTO d){
+        Doctor doctorUpdate = new() {
+            Id = id,
+            Name = d.Name,
+            LastName = d.LastName,
+            DNI = d.DNI.Value,
+            Email = d.Email,
+            TelephoneNumber = d.TelephoneNumber,
+            LicenseNumber = d.LicenseNumber.Value
+        };
+        _context.Entry(doctorUpdate).State = EntityState.Modified;
+        _context.SaveChanges();
+        return doctorUpdate;
+
     }
 }
