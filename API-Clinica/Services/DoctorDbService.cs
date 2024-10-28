@@ -15,7 +15,7 @@ public class DoctorDbService : IDoctorService{
         if (d.LicenseNumber == null){ // Manejar el caso en el que LicenseNumber sea nulo
             throw new ArgumentException("LicenseNumber cannot be null");
         }
-
+ 
         Doctor doctor = new(){
             Name = d.Name,
             LastName = d.LastName,
@@ -29,7 +29,7 @@ public class DoctorDbService : IDoctorService{
         _context.SaveChanges();
         return doctor;
     }
-
+ 
     public void Delete(int id){
         var a = _context.Doctor.Find(id);
         _context.Doctor.Remove(a);

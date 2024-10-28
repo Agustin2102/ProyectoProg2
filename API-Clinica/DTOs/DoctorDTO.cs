@@ -4,13 +4,13 @@ public class DoctorDTO{
 
     [Required(ErrorMessage = "El campo Name es requerido.")]
     public string? Name {get; set;} // Nombre del Doctor
-    
+     
     [Required(ErrorMessage = "El campo LastName es requerido.")]
     public string? LastName {get; set;} // Apellido del Doctor
     
     [Required(ErrorMessage = "El campo DNI es requerido.")]
     public int? DNI {get; set;} // DNI del Doctor
-    
+     
     [Required(ErrorMessage = "El campo Email es requerido.")]
     public string? Email {get; set;} // Correo electrónico del Doctor
     

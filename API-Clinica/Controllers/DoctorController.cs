@@ -10,7 +10,7 @@ public class DoctorController : ControllerBase{
     }
 
     /*Aqui es donde se tienen que definir los metodos del Services para que se muestren en el navegador*/
-
+ 
     [HttpGet]
     public ActionResult<List<Doctor>> GetAllDoctors(){ // Obtiene todos los Doctores de la BD
         //Falta mostrar las especialidades de los medicos
