@@ -15,27 +15,44 @@ public class DoctorDbService : IDoctorService{
         if (d.LicenseNumber == null){ // Manejar el caso en el que LicenseNumber sea nulo
             throw new ArgumentException("LicenseNumber cannot be null");
         }
-
+ 
         Doctor doctor = new(){
             Name = d.Name,
             LastName = d.LastName,
             DNI = d.DNI.Value,
             Email = d.Email,
             TelephoneNumber = d.TelephoneNumber,
-            LicenseNumber = d.LicenseNumber.Value
+            LicenseNumber = d.LicenseNumber.Value,
+            Specialties = new List<Specialty>() //Inicializo la lista de especialidades
         };
+
+        //Asocio las especialidades
+        if(d.SpecialtyIds != null && d.SpecialtyIds.Any()){
+            //Obtengo las especialidades del contexto
+            var specialties = _context.Specialty.Where(s => d.SpecialtyIds.Contains(s.Id)).ToList();
+            //Añado las especialidades al doctor
+            doctor.Specialties.AddRange(specialties);
+        }
+
         _context.Doctor.Add(doctor);
         _context.SaveChanges();
         return doctor;
     }
-
+ 
     public void Delete(int id){
-        throw new NotImplementedException();
+        var a = _context.Doctor.Find(id);
+        _context.Doctor.Remove(a);
+        _context.SaveChanges();
     }
 
     public IEnumerable<Doctor> GetAll(){
-        return _context.Doctor;
+        return _context.Doctor.Include(s => s.Specialties);
     }
+
+    public IEnumerable<Appointment> GetAllAppointments(int doctorID){
+        return _context.Appointment.Where(d => d.doctor_id == doctorID).ToList();
+    }
+
 
     public IEnumerable<Appointment> GetAppointment(int id){
         throw new NotImplementedException();
@@ -45,7 +62,19 @@ public class DoctorDbService : IDoctorService{
         return _context.Doctor.Find(id);
     }
 
-    public Doctor? Update(int id, Doctor a){
-        throw new NotImplementedException();
+    public Doctor? Update(int id, DoctorDTO d){
+        Doctor doctorUpdate = new() {
+            Id = id,
+            Name = d.Name,
+            LastName = d.LastName,
+            DNI = d.DNI.Value,
+            Email = d.Email,
+            TelephoneNumber = d.TelephoneNumber,
+            LicenseNumber = d.LicenseNumber.Value
+        };
+        _context.Entry(doctorUpdate).State = EntityState.Modified;
+        _context.SaveChanges();
+        return doctorUpdate;
+
     }
 }

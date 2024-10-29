@@ -1,31 +1,62 @@
-public class Appointment{
-    public int Id { get; set; } // ID de la cita
-    public int IdPatient { get; set; } // ID del paciente
-    public int IdDoctor { get; set; } // ID del doctor
-    public int IdSpecialty { get; set; } // ID de la especialidad
-    public string AppointmentDate { get; set; } // Fecha de la cita
-    public string Status { get; set; } // Estado de la cita (e.g., Programada, Cancelada, Completada)
-    public Doctor Doctor { get; set; } // Doctor que realiza la consulta
-    public Patient Patient { get; set; } // Paciente que realizo el tueno medico
 
-    // Constructor sin parámetros
-    public Appointment(){}
+//using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-    // Constructor con parámetros
-    public Appointment(int id, int idPatient, int idDoctor, int idSpecialty, string appointmentDate, string status, Doctor doctor, Patient patient){
-        this.Id = id;
-        this.IdPatient = idPatient;
-        this.IdDoctor = idDoctor;
-        this.IdSpecialty = idSpecialty;
-        this.AppointmentDate = appointmentDate;
-        this.Status = status;
-        this.Doctor = doctor;
-        this.Patient = patient;
+public class Appointment
+{
+    public int ID { get; set; } //clave primaria
+
+    public int patient_id { get; set; } //ID del paciente 
+
+    public int doctor_id { get; set; } //ID del doctor 
+
+    public int specialty_id { get; set; } //ID de la especialidad 
+    public DateTime appointment_date { get; set; } //fecha de la cita
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public AppointmentStatus status { get; set; } //estado de la cita
+
+    public int? administrator_id { get; set; } //ID del administrador 
+
+    [JsonIgnore] // Evitar serialización circular
+    public virtual Administrator? Administrator { get; set; } 
+
+    [JsonIgnore] 
+    public virtual Doctor? Doctor { get; set; } //Propiedad de nevegacion hacia Doctor
+
+    [JsonIgnore] 
+    public virtual Patient? Patient { get; set; } 
+    [JsonIgnore] 
+    public virtual Specialty? Specialty { get; set; }
+
+
+    //cconstructor sin parámetros
+    public Appointment() { }
+
+    //onstructor con parámetros
+    public Appointment(int id, int patient_id, int doctor_id, int specialty_id, DateTime appointment_date, AppointmentStatus status, int? administrator_id = null)
+    {
+        this.ID = ID;
+        this.patient_id = patient_id; // ID del paciente
+        this.doctor_id = doctor_id;   // ID del doctor
+        this.specialty_id = specialty_id; // ID de la especialidad
+        this.appointment_date = appointment_date;
+        this.status = status;
+        this.administrator_id = administrator_id; // ID del administrador
     }
 
     // Override del método ToString
     public override string ToString()
     {
-        return $"Appointment ID: {Id}, Patient ID: {IdPatient}, Doctor ID: {IdDoctor}, Specialty ID: {IdSpecialty}, Date: {AppointmentDate}, Status: {Status}";
+        return $"Appointment ID: {ID}, Patient ID: {patient_id}, Doctor ID: {doctor_id}, Specialty ID: {specialty_id}, Date: {appointment_date}, Status: {status}";
+    }
+
+    // Enum p el estado del turno médico
+    public enum AppointmentStatus
+    {
+        Scheduled,    //Programada 0
+        Completed,    //Completada 1 
+        Canceled,     //Cancelada 2 
+        Rescheduled    //Reprogramada 3
     }
 }
