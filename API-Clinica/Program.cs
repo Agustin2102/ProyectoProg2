@@ -90,6 +90,12 @@ builder.Services.AddScoped<ISpecialtyService, SpecialtyDbService>();
 // Registra IAppointmentService y su implementación
 builder.Services.AddScoped<IAppointmentService, AppointmentDbService>(); 
 
+// Registra IAdministradorService y su implementación
+builder.Services.AddScoped<IAdministratorService, AdministratorDbService>();
+
+// Registra IPacienteService y su implementación
+builder.Services.AddScoped<IPatientService, PatientDbService>();
+
 // Configurar el contexto para Identity (autenticación y autorización)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("cnClinica")));

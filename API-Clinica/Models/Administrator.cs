@@ -5,7 +5,7 @@ public class Administrator : User{
 
 
     [JsonIgnore] //Indico que ignore la lista de turnos cuando se realiza a serialización
-    public virtual List<Appointment> Appointments {get; set;} // Lista de Turnos que puede acceder un administrador
+    public virtual List<Appointment>? Appointments {get; set;} // Lista de Turnos que puede acceder un administrador
     /*
         La palabra clave "virtual" le indica a Entity que utilice la tecnica de "lazy loading (carga diferenciada)"
         Significa que los datos del administrador y en particular en la lista de turnos que puede tener un administrador,

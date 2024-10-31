@@ -7,7 +7,7 @@ public interface IDoctorService{
     public Doctor? Update(int id, DoctorDTO d);
 
     public IEnumerable<Appointment> GetAllAppointments(int doctorID);
-    public IEnumerable<Appointment> GetAppointment(int id);
+    public Appointment GetAppointment(int doctorID, int appointmentID);
 
 
     //hacer que solo el Administrador sea quien cree y elimine los turnos de los medico y los pacientes

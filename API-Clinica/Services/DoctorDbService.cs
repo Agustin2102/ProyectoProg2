@@ -50,12 +50,20 @@ public class DoctorDbService : IDoctorService{
     }
 
     public IEnumerable<Appointment> GetAllAppointments(int doctorID){
-        return _context.Appointment.Where(d => d.doctor_id == doctorID).ToList();
+        return _context.Appointment
+        .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
+        .Include(a => a.Patient)
+        .Include(a => a.Specialty)
+        .Where(d => d.doctor_id == doctorID).ToList();
     }
 
 
-    public IEnumerable<Appointment> GetAppointment(int id){
-        throw new NotImplementedException();
+    public Appointment GetAppointment(int doctorID, int appointmentID){
+        return _context.Appointment
+        .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
+        .Include(a => a.Patient)
+        .Include(a => a.Specialty)
+        .FirstOrDefault(d => d.doctor_id == doctorID && d.ID == appointmentID); //Envio el primer turno que comple con esas condifiocnes
     }
 
     public Doctor? GetById(int id){
@@ -78,3 +86,22 @@ public class DoctorDbService : IDoctorService{
 
     }
 }
+
+
+/*
+
+public IEnumerable<Appointment> GetAllAppointments() {
+    int doctorID = int.Parse(User.FindFirst("DoctorID").Value);
+    return _context.Appointment.Where(d => d.doctor_id == doctorID).ToList();
+}
+
+public Appointment GetAppointment(int appointmentID) {
+    int doctorID = int.Parse(User.FindFirst("DoctorID").Value);
+    return _context.Appointment.FirstOrDefault(d => d.doctor_id == doctorID && d.ID == appointmentID);
+}
+
+Aquí, User.FindFirst("DoctorID").Value obtiene el ID del usuario autenticado, evitando que tengas que pasarlo como parámetro. Esto mejora la seguridad al limitar el acceso solo a los recursos del doctor autenticado.
+
+
+
+*/
