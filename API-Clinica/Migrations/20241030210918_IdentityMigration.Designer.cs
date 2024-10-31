@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,13 +11,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API_Clinica.Migrations
 {
     [DbContext(typeof(ClinicaContext))]
-    partial class ClinicaContextModelSnapshot : ModelSnapshot
+    [Migration("20241030210918_IdentityMigration")]
+    partial class IdentityMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -70,6 +73,12 @@ namespace API_Clinica.Migrations
                     b.Property<int?>("AdministratorId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SpecialtyId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("administrator_id")
                         .HasColumnType("int")
                         .HasColumnName("administrator_id");
@@ -98,9 +107,11 @@ namespace API_Clinica.Migrations
 
                     b.HasIndex("AdministratorId");
 
-                    b.HasIndex("doctor_id");
+                    b.HasIndex("PatientId");
 
-                    b.HasIndex("patient_id");
+                    b.HasIndex("SpecialtyId");
+
+                    b.HasIndex("doctor_id");
 
                     b.ToTable("Appointment");
                 });
@@ -170,6 +181,7 @@ namespace API_Clinica.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("address");
 
@@ -193,6 +205,7 @@ namespace API_Clinica.Migrations
                         .HasColumnName("last_name");
 
                     b.Property<string>("MedicalHistory")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("medical_history");
 
@@ -235,21 +248,17 @@ namespace API_Clinica.Migrations
                         .WithMany("Appointments")
                         .HasForeignKey("AdministratorId");
 
-                    b.HasOne("Doctor", "Doctor")
-                        .WithMany("Appointments")
-                        .HasForeignKey("doctor_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Patient", "Patient")
                         .WithMany("Appointments")
-                        .HasForeignKey("patient_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PatientId");
 
                     b.HasOne("Specialty", "Specialty")
                         .WithMany()
-                        .HasForeignKey("patient_id")
+                        .HasForeignKey("SpecialtyId");
+
+                    b.HasOne("Doctor", "Doctor")
+                        .WithMany("Appointments")
+                        .HasForeignKey("doctor_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

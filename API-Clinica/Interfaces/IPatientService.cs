@@ -5,6 +5,8 @@ public interface IPatientService{
 
     public void Delete(int id);
     public Patient? Update(int id, Patient a);
+
+     public IEnumerable<Appointment> GetAllAppointments(int PatientId);
     public IEnumerable<Appointment> GetAppointment(int id);
 
 }

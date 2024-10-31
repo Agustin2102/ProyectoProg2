@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -14,6 +15,7 @@ public class AppointmentController : ControllerBase
 
 
     [HttpGet] 
+    //[Authorize(Roles = "admin")]
     public ActionResult<List<Appointment>> GetAllAppointments() 
     {
         var appointments = _appointmentService.GetAll(); // obtiene la lista de citas
@@ -22,6 +24,7 @@ public class AppointmentController : ControllerBase
 
 
     [HttpGet("{id}")] 
+    //[Authorize(Roles = "admin")]
     public ActionResult<Appointment> GetById(int id) 
     {
         var appointment = _appointmentService.GetById(id); // busca la cita por id
@@ -34,6 +37,7 @@ public class AppointmentController : ControllerBase
 
   
     [HttpPost] 
+    //[Authorize(Roles = "admin, patient")]
     public ActionResult<Appointment> Create([FromBody] AppointmentDTO appointmentDto) 
     {
         if (appointmentDto == null) // comprueba si el DTO es nulo
@@ -60,6 +64,7 @@ public class AppointmentController : ControllerBase
 
     // metodo para actualizar una cita existente
     [HttpPut("{id}")] 
+    //[Authorize(Roles = "admin")] 
     public IActionResult Update(int id, [FromBody] AppointmentDTO appointmentDto) 
     {
         if (appointmentDto == null) // comprueba si el DTO es nulo
@@ -83,6 +88,7 @@ public class AppointmentController : ControllerBase
 
     // metodo para eliminar una cita por su ID
     [HttpDelete("{id}")] 
+    //[Authorize(Roles = "admin")]
     public IActionResult DeleteAppointment(int id) 
     {
         var appointment = _appointmentService.GetById(id); // busca la cita por id

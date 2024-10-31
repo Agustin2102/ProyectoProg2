@@ -3,9 +3,9 @@ using Newtonsoft.Json;
 
 public class Patient : User
 {
-    public string DateOfBirth {get; set;}
-    public string Address {get; set;}
-    public string MedicalHistory {get; set;}
+    public string? DateOfBirth {get; set;}
+    public string? Address {get; set;}
+    public string? MedicalHistory {get; set;}
 
     [JsonIgnore]//Indico que ignore la lista de turnos cuando se realiza a serialización
     public virtual List<Appointment> Appointments {get; set;} // Lista de Turnos que tiene un paciente

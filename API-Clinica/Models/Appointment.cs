@@ -54,9 +54,9 @@ public class Appointment
     // Enum p el estado del turno médico
     public enum AppointmentStatus
     {
-        Scheduled,    //Programada 0
-        Completed,    //Completada 1 
-        Canceled,     //Cancelada 2 
-        Rescheduled    //Reprogramada 3
+        Scheduled = 0,    //Programada 0
+        Completed = 1,    //Completada 1 
+        Canceled = 2,     //Cancelada 2 
+        Rescheduled = 3    //Reprogramada 3
     }
 }
