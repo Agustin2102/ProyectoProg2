@@ -1,80 +1,4 @@
 
---CREATE DATABASE ClinicaDb;
---GO
-
--- Usar la base de datos
---U--SE ClinicaDb;
---GO
-
-
--- Creacion Tabla Paciente
-CREATE TABLE Patient (
-    ID INT PRIMARY KEY IDENTITY(1,1),
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    DNI INT NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(15),
-    birth_date DATETIME NOT NULL,
-    address VARCHAR(255),
-    medical_history TEXT
-);
-GO
-
--- Creacion Tabla Administrador
-CREATE TABLE Administrator (
-    ID INT PRIMARY KEY IDENTITY(1,1),
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    DNI INT NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(15)
-);
-GO
-
-CREATE TABLE Doctor (
-    ID INT PRIMARY KEY IDENTITY(1,1),
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    DNI INT NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(15),
-    license_number INT NOT NULL UNIQUE
-);
-GO
-
--- Creacion Tabla Especialidad
-CREATE TABLE Specialty (
-    ID INT PRIMARY KEY IDENTITY(1,1),
-    name VARCHAR(100) NOT NULL
-);
-
--- Creacion Tabla Media Doctor/Especialidad
-CREATE TABLE Doctor_Specialty (
-    doctor_id INT,
-    specialty_id INT,
-    PRIMARY KEY (doctor_id, specialty_id),
-    FOREIGN KEY (doctor_id) REFERENCES Doctor(ID),
-    FOREIGN KEY (specialty_id) REFERENCES Specialty(ID)
-);
-GO
-
--- Creacion Tabla Turno
-CREATE TABLE Appointment (
-    ID INT PRIMARY KEY IDENTITY(1,1),
-    patient_id INT NOT NULL,
-    doctor_id INT NOT NULL,
-    specialty_id INT NOT NULL,
-    appointment_date DATETIME NOT NULL,
-    status VARCHAR(50) CHECK (status IN ('scheduled', 'completed', 'canceled')),
-    FOREIGN KEY (patient_id) REFERENCES Patient(ID),
-    FOREIGN KEY (doctor_id) REFERENCES Doctor(ID),
-    FOREIGN KEY (specialty_id) REFERENCES Specialty(ID)
-);
-GO
-
-
-
 -- Insertar ejemplos en la tabla de Patients (Pacientes)
 INSERT INTO Patient (first_name, last_name, DNI, email, phone, birth_date, address, medical_history) VALUES
 ('John', 'Doe', 12345678, 'john.doe@example.com', '555-1234', '1980-01-15', '123 Main St', 'No allergies'),
@@ -132,10 +56,10 @@ INSERT INTO Specialty (name) VALUES
 GO
 
 -- Insertar ejemplos en la tabla de relación Doctor_Specialty
-/*INSERT INTO Doctor_Specialty (doctor_id, specialty_id) VALUES
+INSERT INTO DoctorSpecialty (DoctorsId, SpecialtiesId) VALUES
 (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
 (6, 6), (7, 7), (8, 8), (9, 9), (10, 10);
-GO*/
+GO
 
 -- Insertar ejemplos en la tabla de Appointments (Turnos)
 INSERT INTO Appointment (patient_id, doctor_id, specialty_id, appointment_date, status) VALUES

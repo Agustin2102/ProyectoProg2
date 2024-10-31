@@ -4460,11 +4460,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\agust\\OneDrive\\Escritorio\\API-Clinica\\API-Clinica.csproj",
+      "projectUniqueName": "C:\\Users\\agust\\OneDrive\\Escritorio\\Clinica\\ProyectoProg2\\API-Clinica\\API-Clinica.csproj",
       "projectName": "API-Clinica",
-      "projectPath": "C:\\Users\\agust\\OneDrive\\Escritorio\\API-Clinica\\API-Clinica.csproj",
+      "projectPath": "C:\\Users\\agust\\OneDrive\\Escritorio\\Clinica\\ProyectoProg2\\API-Clinica\\API-Clinica.csproj",
       "packagesPath": "C:\\Users\\agust\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\agust\\OneDrive\\Escritorio\\API-Clinica\\obj\\",
+      "outputPath": "C:\\Users\\agust\\OneDrive\\Escritorio\\Clinica\\ProyectoProg2\\API-Clinica\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\agust\\AppData\\Roaming\\NuGet\\NuGet.Config"
