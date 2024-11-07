@@ -1,9 +1,8 @@
-public interface ISpecialtyService{
-    public IEnumerable<Specialty> GetAll();
-    public Specialty? GetById(int id);
-    public Specialty Create(SpecialtyDTO a);
-
-    public void Delete(int id);
-    public Specialty? Update(int id, Specialty a);
-
+public interface ISpecialtyService
+{
+    IEnumerable<Specialty> GetAll();
+    Specialty? GetById(int id);
+    Specialty Create(SpecialtyDTO specialtyDto);
+    void Delete(int id);
+    Specialty? Update(int id, Specialty specialty);
 }

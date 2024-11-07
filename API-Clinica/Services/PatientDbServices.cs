@@ -16,11 +16,22 @@ public class PatientDbService : IPatientService{
             Email = d.Email,
             TelephoneNumber = d.TelephoneNumber,
             DateOfBirth = d.DateOfBirth,
-            Address = d.Address
+            Address = d.Address,
+             MedicalHistory = d.MedicalHistory ?? "" // Valor predeterminado si es nulo
+
         };
         _context.Patient.Add(patient);
         _context.SaveChanges();
         return patient;
+    }
+
+        public IEnumerable<Appointment> GetAllAppointments(int PatientId){
+        return _context.Appointment.Where(d => d.patient_id == PatientId).ToList();
+    }
+
+
+    public IEnumerable<Appointment> GetAppointment(int id){
+        throw new NotImplementedException();
     }
 
     public void Delete(int id)
@@ -43,10 +54,7 @@ public class PatientDbService : IPatientService{
         return _context.Patient;
     }
 
-    public IEnumerable<Appointment> GetAppointment(int id)
-    {
-        throw new NotImplementedException();
-    }
+  
 
     public Patient? GetById(int id)
     {

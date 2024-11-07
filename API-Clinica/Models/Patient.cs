@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 
 public class Patient : User
 {
-    public DateTime? DateOfBirth {get; set;}
+    public string? DateOfBirth {get; set;}
     public string? Address {get; set;}
     public string? MedicalHistory {get; set;}
 
     [JsonIgnore]//Indico que ignore la lista de turnos cuando se realiza a serialización
-    public virtual List<Appointment>? Appointments {get; set;} // Lista de Turnos que tiene un paciente
+    public virtual List<Appointment> Appointments {get; set;} // Lista de Turnos que tiene un paciente
     /*
         La palabra clave "virtual" le indica a Entity que utilice la tecnica de "lazy loading (carga diferenciada)"
         Significa que los datos del paciente y en particular en la lista de turnos que puede tener un paciente,
@@ -22,7 +22,7 @@ public class Patient : User
     public Patient(){}
 
     // Constructor con parámetros
-    public Patient(int id, string name, string lastName, int DNI, string email, string telephoneNumber, DateTime dateOfBirth, string address, string medicalHistory)
+    public Patient(int id, string name, string lastName, int DNI, string email, string telephoneNumber, string dateOfBirth, string address, string medicalHistory)
         : base(id, name, lastName, DNI, email, telephoneNumber) // Llama al constructor de la clase base
     {
         DateOfBirth = dateOfBirth;
