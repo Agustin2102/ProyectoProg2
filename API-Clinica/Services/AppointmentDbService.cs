@@ -32,6 +32,23 @@ public class AppointmentDbService : IAppointmentService
     //crear una nueva cita --- convierte el AppointmentDTO en una entidad Appointment y la guarda en la base de datos
     public Appointment Create(AppointmentDTO appointmentDto)
     {
+         // Verifica si ya existe un turno para el doctor en la misma fecha y hora
+    bool doctorConflict = _context.Appointment.Any(a =>
+        a.doctor_id == appointmentDto.doctor_id &&
+        a.appointment_date == appointmentDto.appointment_date);
+
+    // Verifica si ya existe un turno para el paciente en la misma fecha y hora
+    bool patientConflict = _context.Appointment.Any(a =>
+        a.patient_id == appointmentDto.patient_id &&
+        a.appointment_date == appointmentDto.appointment_date);
+
+    // Si hay conflicto, lanza una excepción o retorna un error
+    if (doctorConflict || patientConflict)
+    {
+        throw new InvalidOperationException("El turno se superpone con otro existente para el médico o el paciente.");
+    }
+
+
         var appointment = new Appointment
         {
             patient_id = appointmentDto.patient_id,

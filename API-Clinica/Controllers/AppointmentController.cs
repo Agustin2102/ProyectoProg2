@@ -40,26 +40,37 @@ public class AppointmentController : ControllerBase
      [Authorize(Roles = "admin, patient")]
     public ActionResult<Appointment> Create([FromBody] AppointmentDTO appointmentDto) 
     {
-        if (appointmentDto == null) // comprueba si el DTO es nulo
-        {
-            return BadRequest("Appointment data is required."); // retorna 400 si es nulo
-        }
+        if (appointmentDto == null) 
+    {
+        return BadRequest("Appointment data is required.");
+    }
 
-        // validar que los campos requeridos estan presentes
-        if (!ModelState.IsValid) 
-        {
-            return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
-        }
+    if (!ModelState.IsValid) 
+    {
+        return BadRequest(ModelState);
+    }
 
-        Appointment _appointment = _appointmentService.Create(appointmentDto); // crea la nueva cita
+    try
+    {
+        // Llamar al servicio para crear la cita, que ya incluye la validación de superposición
+        Appointment _appointment = _appointmentService.Create(appointmentDto);
 
-        // verifica si la creacion fue exitosa
         if (_appointment == null) 
         {
-            return BadRequest("Error creating appointment."); // retorna 400 si hay un error
+            return BadRequest("Error creating appointment.");
         }
 
-        return CreatedAtAction(nameof(GetById), new { id = _appointment.ID }, _appointment); // retorna 201 con la nueva cita
+        return CreatedAtAction(nameof(GetById), new { id = _appointment.ID }, _appointment); 
+    }
+    catch (InvalidOperationException ex)
+    {
+        // Si se lanza una excepción por superposición de turnos, retornar conflicto
+        return Conflict(ex.Message); // El mensaje de la excepción es el que generaste en el servicio
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "An error occurred while creating the appointment.", error = ex.Message });
+    }
     }
 
     // metodo para actualizar una cita existente
