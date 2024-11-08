@@ -34,9 +34,10 @@ public class AppointmentDbService : IAppointmentService
     {
 
         if (!_context.Doctor.Any(d => d.Id == appointmentDto.doctor_id) ||
-        !_context.Patient.Any(p => p.Id == appointmentDto.patient_id) ||
-        !_context.Specialty.Any(s => s.Id == appointmentDto.specialty_id)){
-            throw new ArgumentException("Invalid foreign key(s) provided.");
+            !_context.Patient.Any(p => p.Id == appointmentDto.patient_id) ||
+            !_context.Specialty.Any(s => s.Id == appointmentDto.specialty_id)){
+
+                throw new ArgumentException("Invalid foreign key(s) provided.");
         }
 
         /*
@@ -44,6 +45,21 @@ public class AppointmentDbService : IAppointmentService
             podrías verificar que doctor_id, patient_id, y specialty_id existen en sus respectivas tablas. 
             Esto puede evitar errores de integridad de la base de datos.
         */
+
+
+        //Verifico si existe un turno para el doctor en la misma fecha y hora
+        bool doctorConflict = _context.Appointment.Any(a =>
+            a.doctor_id == appointmentDto.doctor_id && 
+            a.appointment_date == appointmentDto.appointment_date
+        );
+
+        //Verifico si existe un turno para el paciente en la misma fecha y hora
+        bool patientConflict = _context.Appointment.Any(a => 
+            a.patient_id == appointmentDto.patient_id &&
+            a.appointment_date == appointmentDto.appointment_date
+        );
+
+        if(doctorConflict || patientConflict) throw new InvalidOperationException("The appointment overlaps with another already existing appointment");
 
         Appointment appointment = new() {
             patient_id = appointmentDto.patient_id,

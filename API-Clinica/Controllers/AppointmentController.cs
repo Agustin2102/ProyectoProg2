@@ -41,9 +41,8 @@ public class AppointmentController : ControllerBase
     //[Authorize(Roles = "admin, patient")]
     public ActionResult<Appointment> Create(AppointmentDTO appointmentDto)
     {
-        if (appointmentDto == null){
-            return BadRequest("Appointment data is required.");
-        }  
+        if (appointmentDto == null) return BadRequest("Appointment data is required.");
+
 
         try{
             Appointment _appointment = _appointmentService.Create(appointmentDto);

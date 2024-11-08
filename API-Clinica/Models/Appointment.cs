@@ -16,8 +16,6 @@ public class Appointment
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public AppointmentStatus status { get; set; } //estado de la cita
 
-    public int? administrator_id { get; set; } //ID del administrador 
-
     [JsonIgnore] // Evitar serialización circular
     public virtual Administrator? Administrator { get; set; } 
 
@@ -34,7 +32,7 @@ public class Appointment
     public Appointment() { }
 
     //onstructor con parámetros
-    public Appointment(int id, int patient_id, int doctor_id, int specialty_id, DateTime appointment_date, AppointmentStatus status, int? administrator_id = null)
+    public Appointment(int id, int patient_id, int doctor_id, int specialty_id, DateTime appointment_date, AppointmentStatus status)
     {
         this.ID = ID;
         this.patient_id = patient_id; // ID del paciente
@@ -42,7 +40,7 @@ public class Appointment
         this.specialty_id = specialty_id; // ID de la especialidad
         this.appointment_date = appointment_date;
         this.status = status;
-        this.administrator_id = administrator_id; // ID del administrador
+        
     }
 
     // Override del método ToString

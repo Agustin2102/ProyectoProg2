@@ -83,7 +83,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         entity.Property(e => e.doctor_id).HasColumnName("doctor_id");
         entity.Property(e => e.specialty_id).HasColumnName("specialty_id");
         entity.Property(e => e.appointment_date).HasColumnName("appointment_date");
-        entity.Property(e => e.administrator_id).HasColumnName("administrator_id");
+        //entity.Property(e => e.administrator_id).HasColumnName("administrator_id");
         entity.Property(e => e.status).HasColumnName("status"); //.HasConversion<string>();
     
     
