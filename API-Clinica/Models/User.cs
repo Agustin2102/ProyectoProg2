@@ -1,3 +1,4 @@
+
 public class User{
     public int Id {get; set;} // ID del usuario
     public string Name {get; set;} // Nombre del usuario
@@ -5,8 +6,12 @@ public class User{
     public int DNI {get; set;} // DNI del usuario
     public string Email {get; set;} // Correo electrónico del usuario
     public string TelephoneNumber {get; set;} // Número de teléfono del usuario
+    public static object Identity { get; internal set; }
+    public static IEnumerable<object> Claims { get; internal set; }
 
     // Constructor sin parámetros
+
+
     public User(){}
 
     // Constructor con parámetros

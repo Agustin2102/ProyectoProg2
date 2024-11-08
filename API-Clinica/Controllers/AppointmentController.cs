@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/appointments")]
@@ -38,29 +39,28 @@ public class AppointmentController : ControllerBase
   
     [HttpPost] 
     //[Authorize(Roles = "admin, patient")]
-    public ActionResult<Appointment> Create([FromBody] AppointmentDTO appointmentDto) 
+    public ActionResult<Appointment> Create(AppointmentDTO appointmentDto)
     {
-        if (appointmentDto == null) // comprueba si el DTO es nulo
-        {
-            return BadRequest("Appointment data is required."); // retorna 400 si es nulo
+        if (appointmentDto == null){
+            return BadRequest("Appointment data is required.");
+        }  
+
+        try{
+            Appointment _appointment = _appointmentService.Create(appointmentDto);
+
+            return CreatedAtAction(nameof(GetById), new { id = _appointment.ID }, _appointment);
         }
-
-        // validar que los campos requeridos estan presentes
-        if (!ModelState.IsValid) 
+        catch (DbUpdateException ex)
         {
-            return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+            // Aquí puedes registrar el detalle de la excepción o devolver una respuesta detallada
+            throw new Exception("Database update failed: " + ex.InnerException?.Message);
         }
-
-        Appointment _appointment = _appointmentService.Create(appointmentDto); // crea la nueva cita
-
-        // verifica si la creacion fue exitosa
-        if (_appointment == null) 
+        catch (Exception ex)
         {
-            return BadRequest("Error creating appointment."); // retorna 400 si hay un error
-        }
-
-        return CreatedAtAction(nameof(GetById), new { id = _appointment.ID }, _appointment); // retorna 201 con la nueva cita
+            throw new Exception("An error occurred while creating the appointment: " + ex.Message);
     }
+    }
+
 
     // metodo para actualizar una cita existente
     [HttpPut("{id}")] 

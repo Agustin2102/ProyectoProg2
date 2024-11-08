@@ -169,4 +169,33 @@ public class AccountController : ControllerBase
         return BadRequest(result.Errors);
     }
 
+
+
+    [HttpGet("get-user-name")]
+    public IActionResult GetUserName()
+    {
+        // Accede al User.Identity.Name para obtener el nombre de usuario (si está presente)
+        var userName = User.Identity?.Name;
+
+        return Ok(new { userName });
+    }
+
+
+
+    /* [HttpGet("get-user-claims")]
+    public IActionResult GetUserClaims()
+    {
+        // Accede al User.Identity.Name para obtener el nombre de usuario (si está presente)
+        var userName = User.Identity?.Name;
+
+        // Obtén todos los claims del usuario autenticado
+        var claims = User.Claims.Select(c => new 
+        {
+            Type = c.Type,
+            Value = c.Value
+        });
+
+        return Ok(new { userName, claims });
+    } */
+
 }

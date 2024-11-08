@@ -9,6 +9,12 @@ using Microsoft.OpenApi.Any;
 //Nueva Migracion: dotnet ef migrations add ClinicaDb2 --context ClinicaContext
 
 
+//dotnet ef migrations add ClinicaDb3 --context ClinicaContext
+//dotnet ef database update --context ClinicaContext
+//dotnet ef database update --context ApplicationDbContext
+
+
+
 // Script para cargar las variables de entorno del archivo .env
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
@@ -82,6 +88,7 @@ builder.Services.AddSqlServer<ClinicaContext>(builder.Configuration.GetConnectio
 
 /*------AÑADIR LOS CONTENEDORES PARA LA INYECCIÓN DE DEPENDENCIAS-----*/
 builder.Services.AddScoped<IDoctorService, DoctorDbService>();
+//builder.Services.AddScoped<AccountDbService, AccountDbService>();
 
 //Para Specialty
 builder.Services.AddScoped<ISpecialtyService, SpecialtyDbService>();
@@ -95,6 +102,31 @@ builder.Services.AddScoped<IAdministratorService, AdministratorDbService>();
 
 // Registra IPacienteService y su implementación
 builder.Services.AddScoped<IPatientService, PatientDbService>();
+
+
+// Agrega IHttpContextAccessor al contenedor de servicios
+builder.Services.AddHttpContextAccessor();
+// Agrega AccountDbService al contenedor de servicios
+builder.Services.AddScoped<AccountDbService>();
+
+
+/*
+Resumen de los cambios realizados:
+builder.Services.AddHttpContextAccessor();: Esto permite que IHttpContextAccessor esté disponible en el contenedor de inyección de dependencias, permitiendo que AccountDbService acceda al contexto HTTP y, por lo tanto, a los claims del usuario autenticado.
+
+builder.Services.AddScoped<AccountDbService>();: Registra AccountDbService en el contenedor, lo que permitirá que este servicio se inyecte en los controladores y se utilice en las solicitudes.
+
+app.UseAuthentication(); y app.UseAuthorization();: Asegúrate de que UseAuthentication y UseAuthorization estén habilitados en el middleware para que los claims del usuario se obtengan correctamente.
+
+Con estas modificaciones, AccountDbService debería estar listo para acceder al contexto HTTP y a los claims del usuario autenticado.
+
+*/
+
+
+
+
+
+
 
 // Configurar el contexto para Identity (autenticación y autorización)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -136,6 +168,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//NUEVOOO
+app.UseAuthentication();  // Asegúrate de habilitar la autenticación
+app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
 

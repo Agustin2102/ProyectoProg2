@@ -5,7 +5,7 @@ public class PatientDbService : IPatientService{
 
     public PatientDbService(ClinicaContext context){
         this._context = context;
-    }
+    } 
 
     public Patient Create(PatientDTO d)
     {
@@ -19,20 +19,20 @@ public class PatientDbService : IPatientService{
             Address = d.Address,
              MedicalHistory = d.MedicalHistory ?? "" // Valor predeterminado si es nulo
 
-        };
+        }; 
         _context.Patient.Add(patient);
         _context.SaveChanges();
         return patient;
     }
 
-        public IEnumerable<Appointment> GetAllAppointments(int PatientId){
+   /*      public IEnumerable<Appointment> GetAllAppointments(int PatientId){
         return _context.Appointment.Where(d => d.patient_id == PatientId).ToList();
-    }
+    } */
 
 
-    public IEnumerable<Appointment> GetAppointment(int id){
+    /* public IEnumerable<Appointment> GetAppointment(int id){
         throw new NotImplementedException();
-    }
+    } */
 
     public void Delete(int id)
     {
@@ -59,6 +59,16 @@ public class PatientDbService : IPatientService{
     public Patient? GetById(int id)
     {
         return _context.Patient.Find(id);
+    }
+
+    public Patient? GetByName(string name)
+    {
+        return (Patient?)_context.Patient
+            .Include(p => p.Appointments) //Incluyo los turnos del Paciente
+                .ThenInclude(a => a.Doctor) // Incluyo al Doctor del turno para acceder a los datos
+            .Include(p => p.Appointments)
+                .ThenInclude(a => a.Specialty)// Incluto la especialidad asociada al turno para acceder a los datos
+            .FirstOrDefault(d => d.Name == name);
     }
 
     public Patient? Update(int id, Patient a)

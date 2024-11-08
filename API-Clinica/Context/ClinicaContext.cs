@@ -75,7 +75,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
         //Establesco las relaciones entre Turno y las demas entidades
         entity.HasOne(a => a.Doctor).WithMany(d => d.Appointments).HasForeignKey(a => a.doctor_id); // Difino a doctor_id como una de las claves externas
         entity.HasOne(a => a.Patient).WithMany(p => p.Appointments).HasForeignKey(a => a.patient_id);
-        entity.HasOne(a => a.Specialty).WithMany().HasForeignKey(a => a.patient_id);
+        entity.HasOne(a => a.Specialty).WithMany().HasForeignKey(a => a.specialty_id);
 
         //Obtengo los campos del registro
         entity.Property(e => e.ID).HasColumnName("id");

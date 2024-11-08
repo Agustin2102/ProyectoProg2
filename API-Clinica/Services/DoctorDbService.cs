@@ -9,9 +9,9 @@ public class DoctorDbService : IDoctorService{
 
     public Doctor Create(DoctorDTO d){
 
-        if (d.DNI == null){ // Manejar el caso en el que DNI sea nulo
+        /* if (d.DNI == null){ // Manejar el caso en el que DNI sea nulo
             throw new ArgumentException("DNI cannot be null");
-        }
+        } */
         if (d.LicenseNumber == null){ // Manejar el caso en el que LicenseNumber sea nulo
             throw new ArgumentException("LicenseNumber cannot be null");
         }
@@ -49,25 +49,35 @@ public class DoctorDbService : IDoctorService{
         return _context.Doctor.Include(s => s.Specialties);
     }
 
-    public IEnumerable<Appointment> GetAllAppointments(int doctorID){
+    /* public IEnumerable<Appointment> GetAllAppointments(int doctorID){
         return _context.Appointment
         .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
         .Include(a => a.Patient)
         .Include(a => a.Specialty)
         .Where(d => d.doctor_id == doctorID).ToList();
-    }
+    } */
 
 
-    public Appointment GetAppointment(int doctorID, int appointmentID){
+    /* public Appointment GetAppointment(int doctorID, int appointmentID){
         return _context.Appointment
         .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
         .Include(a => a.Patient)
         .Include(a => a.Specialty)
         .FirstOrDefault(d => d.doctor_id == doctorID && d.ID == appointmentID); //Envio el primer turno que comple con esas condifiocnes
-    }
+    } */
 
     public Doctor? GetById(int id){
         return _context.Doctor.Find(id);
+    }
+
+    public Doctor? GetByName(string name)
+    {
+        return _context.Doctor
+        .Include(d => d.Appointments) //Incluyo los turnos del doctor
+            .ThenInclude(a => a.Patient) //Tambien a los pacientes de los turnos
+        .Include(d => d.Appointments)
+            .ThenInclude(a => a.Specialty)
+        .FirstOrDefault(d => d.Name == name);
     }
 
     public Doctor? Update(int id, DoctorDTO d){
