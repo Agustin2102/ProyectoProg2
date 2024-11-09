@@ -60,17 +60,24 @@ public class DoctorController : ControllerBase{
             Console.WriteLine(e.Message);
             return Problem(detail: e.Message, statusCode: 500);
         }
-    }
+    }   
 
 
-    [HttpPut("{id}")]
+    [HttpPut("doctor")]
     //[Authorize(Roles = "admin")]
-    public ActionResult<Doctor> UpdateDoctor(int id, DoctorDTO d){
+    public ActionResult<Doctor> UpdateDoctor(DoctorDTO d){
         try{
 
-            Doctor? doctor = _doctorService.Update(id, d);
+            string userName = _accountService.GetUserName();
+            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
-            if(doctor is null) return NotFound(new {Message = $"No se pudo actualizar el doctor con id: {id}"});
+            int? userId = _doctorService.GetId(userName);
+            if(!userId.HasValue) return BadRequest("No se encontro el Id del Doctor");
+
+
+            Doctor? doctor = _doctorService.Update((int)userId, d);
+
+            if(doctor is null) return NotFound(new {Message = $"No se pudo actualizar el doctor con id: {userId}"});
 
             return CreatedAtAction(nameof(GetById), new{id = doctor.Id}, doctor);
         }

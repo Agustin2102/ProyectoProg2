@@ -64,7 +64,14 @@ public class DoctorDbService : IDoctorService{
         .FirstOrDefault(d => d.Name == name);
     }
 
-  
+    public int? GetId(string name) {
+        return _context.Doctor
+            .Where(d => d.Name == name)
+            .Select(d => d.Id)
+            .FirstOrDefault();
+    }
+
+
     public Doctor? Update(int id, DoctorDTO d){
         Doctor doctorUpdate = new() {
             Id = id,

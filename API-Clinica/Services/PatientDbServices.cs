@@ -71,6 +71,13 @@ public class PatientDbService : IPatientService{
             .FirstOrDefault(d => d.Name == name);
     }
 
+    public int? GetId(string name) {
+        return _context.Patient
+            .Where(p => p.Name == name)
+            .Select(p => p.Id)
+            .FirstOrDefault();
+    }
+
     public Patient? Update(int id, Patient a)
     {
         _context.Entry(a).State = EntityState.Modified;

@@ -49,6 +49,19 @@ public class AdministratorDbService : IAdministratorService
         return _context.Administrator.Find(id);
     }
 
+    public Administrator? GetByName(string name)
+    {
+        return _context.Administrator.FirstOrDefault(d => d.Name == name);
+    }
+
+    public int? GetId(string name) {
+        return _context.Administrator
+            .Where(d => d.Name == name)
+            .Select(d => d.Id)
+            .FirstOrDefault();
+    }
+
+
     public Administrator? Update(int id, Administrator a)
     {
         _context.Entry(a).State = EntityState.Modified;

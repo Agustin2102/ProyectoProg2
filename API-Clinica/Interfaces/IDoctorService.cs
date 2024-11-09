@@ -2,6 +2,7 @@ public interface IDoctorService{
     public IEnumerable<Doctor> GetAll();
     public Doctor? GetById(int id);
     public Doctor? GetByName(string name);
+    public int? GetId(string name);
     public Doctor Create(DoctorDTO d);
 
     public void Delete(int id);

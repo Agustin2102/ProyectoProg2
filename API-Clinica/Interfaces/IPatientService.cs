@@ -3,6 +3,7 @@ public interface IPatientService{
     public Patient? GetById(int id);
 
     public Patient? GetByName(string name);
+    public int? GetId(string name);
     
     public Patient Create(PatientDTO a);
 

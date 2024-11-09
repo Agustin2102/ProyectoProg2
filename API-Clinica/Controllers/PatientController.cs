@@ -33,18 +33,18 @@ public class PatientController : ControllerBase
     }
 
 
-    [HttpPut("{id}")]
+    [HttpPut("patient")]
     //[Authorize(Roles = "admin")]
-    public ActionResult<Patient> UpdatePatient(int id, PatientDTO updatedPatientDto)
-    {
-        // Asegúrate de que el ID en la URL coincida con el ID en el DTO
-        if (id != updatedPatientDto.Id)
-        {
-            return BadRequest("El ID del paciente en la URL no coincide con el ID del paciente en el cuerpo de la solicitud.");
-        }
+    public ActionResult<Patient> UpdatePatient(PatientDTO updatedPatientDto){
+
+        string userName = _accountService.GetUserName();
+        if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+
+        int? userId = _patientService.GetId(userName);
+        if(!userId.HasValue) return BadRequest("No se encontro el Id del Doctor");
 
         // Obtener el paciente existente
-        var patient = _patientService.GetById(id);
+        var patient = _patientService.GetById((int)userId);
         if (patient == null)
         {
             return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
@@ -61,7 +61,7 @@ public class PatientController : ControllerBase
 
 
         // Actualizar el paciente en la base de datos
-        _patientService.Update(id, patient);
+        _patientService.Update((int)userId, patient);
         return Ok(patient); // Retorna  para indicar que la actualización fue exitosa
     }
 

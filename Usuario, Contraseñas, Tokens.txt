@@ -1,0 +1,35 @@
+{
+  "username": "Agustin",
+  "email": "agustin@gmail.com",
+  "password": "Agustin.Beade_2002"
+}
+
+
+{
+  "username": "Yamila",
+  "email": "yamila@gmail.com",
+  "password": "Yamila.Caviglione_2002"
+}
+
+
+{
+  "username": "Florencia",
+  "email": "flor@gmail.com",
+  "password": "Florencia.Silvero_2002"
+}
+
+
+Agustin - administrador
+Yamila - doctor
+Florencia - paciente
+
+
+Agustin:
+
+
+
+Yamila : 
+
+
+
+Flor:
