@@ -15,6 +15,10 @@ public class AppointmentController : ControllerBase
     }
 
 
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+
+
+
     [HttpGet] 
     //[Authorize(Roles = "admin")]
     public ActionResult<List<Appointment>> GetAllAppointments() 

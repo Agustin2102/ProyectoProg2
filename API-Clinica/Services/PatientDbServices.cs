@@ -17,7 +17,7 @@ public class PatientDbService : IPatientService{
             TelephoneNumber = d.TelephoneNumber,
             DateOfBirth = d.DateOfBirth,
             Address = d.Address,
-             MedicalHistory = d.MedicalHistory ?? "" // Valor predeterminado si es nulo
+            MedicalHistory = d.MedicalHistory ?? "" // Valor predeterminado si es nulo
 
         }; 
         _context.Patient.Add(patient);

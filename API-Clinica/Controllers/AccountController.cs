@@ -182,7 +182,7 @@ public class AccountController : ControllerBase
 
 
 
-    /* [HttpGet("get-user-claims")]
+    [HttpGet("get-user-claims")]
     public IActionResult GetUserClaims()
     {
         // Accede al User.Identity.Name para obtener el nombre de usuario (si está presente)
@@ -196,6 +196,6 @@ public class AccountController : ControllerBase
         });
 
         return Ok(new { userName, claims });
-    } */
+    }
 
 }

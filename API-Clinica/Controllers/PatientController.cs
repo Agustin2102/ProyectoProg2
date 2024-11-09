@@ -17,44 +17,21 @@ public class PatientController : ControllerBase
 
     /*Aqui es donde se tienen que definir los metodos del Services para que se muestren en el navegador*/
 
-    [HttpGet]
-    //[Authorize(Roles = "admin")]
-    public ActionResult<List<Patient>> GetAllPatients()
-    { // Obtiene todos los Doctores de la BD
-      //Console.WriteLine(_patientService.GetAll());
-        return Ok(_patientService.GetAll());
-    }
+
+    [Authorize(Roles = "patient,Patient,PATIENT")]
+
 
     [HttpGet("{id}")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
     public ActionResult<Patient> GetById(int id)
-    { //Obtengo un Doctor por su ID
+    {
         Patient? d = _patientService.GetById(id);
 
         if (d == null) return NotFound("Pacient not found");
         else return Ok(d);
     }
 
-    [HttpPost]
-    //[Authorize(Roles = "admin")]
-    public ActionResult<Patient> Create(PatientDTO d)
-    {
-        Patient _patient = _patientService.Create(d); // Llamo al metodo Create del servicio de autor para dar de alta el nuevo Doctor
-        return CreatedAtAction(nameof(GetById), new { id = _patient.Id }, _patient); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo doctor
-    }
-
-    [HttpDelete("{id}")]
-    //[Authorize(Roles = "admin")]
-    public ActionResult Delete(int id)
-    {
-        var a = _patientService.GetById(id);
-
-        if (a == null)
-        { return NotFound("Paciente no encontrado!!!"); }
-
-        _patientService.Delete(id);
-        return NoContent();
-    }
 
     [HttpPut("{id}")]
     //[Authorize(Roles = "admin")]
@@ -88,8 +65,42 @@ public class PatientController : ControllerBase
         return Ok(patient); // Retorna  para indicar que la actualización fue exitosa
     }
 
+
+    [HttpGet("patient")]
+    //[Authorize(Roles = "Patient")]
+    public ActionResult<Doctor> GetPatient(){
+        try{
+            string userName = _accountService.GetUserName();
+
+            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+
+            //Una vez tengo el nombre del usuario lo busco en la BD (al paciente se le agregan los turnos asociados, y a los turnos los demas objetos que estan asociados)
+            var patient = _patientService.GetByName(userName);
+
+            //Verifico si el paciente existe
+            if(patient == null) return NotFound("Patient not found");
+
+            var _patient= new{
+                id = patient.Id,
+                name = patient.Name,
+                lastName = patient.LastName,
+                dni = patient.DNI,
+                dateOfBirth = patient.DateOfBirth,
+                email = patient.Email,
+                telephone = patient.TelephoneNumber,
+                address = patient.Address
+            };
+
+            return Ok(_patient);
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
+    }
+
+
     [HttpGet("appointments")]
-    //[Authorize(Roles = "admin, patient")]
     public ActionResult<List<Appointment>> GetAllAppointments(){
         try{
 
@@ -210,5 +221,38 @@ public class PatientController : ControllerBase
 
 
 
+
+
+
+
+    /*[HttpGet]
+    //[Authorize(Roles = "admin")]
+    public ActionResult<List<Patient>> GetAllPatients()
+    {
+      //Console.WriteLine(_patientService.GetAll());
+        return Ok(_patientService.GetAll());
+    } */
+
+
+    /* [HttpPost]
+    //[Authorize(Roles = "admin")]
+    public ActionResult<Patient> Create(PatientDTO d)
+    {
+        Patient _patient = _patientService.Create(d); // Llamo al metodo Create del servicio de autor para dar de alta el nuevo Doctor
+        return CreatedAtAction(nameof(GetById), new { id = _patient.Id }, _patient); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo doctor
+    } */
+
+    /* [HttpDelete("{id}")]
+    //[Authorize(Roles = "admin")]
+    public ActionResult Delete(int id)
+    {
+        var a = _patientService.GetById(id);
+
+        if (a == null)
+        { return NotFound("Paciente no encontrado!!!"); }
+
+        _patientService.Delete(id);
+        return NoContent();
+    } */
 
 }

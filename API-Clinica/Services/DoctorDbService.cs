@@ -6,7 +6,7 @@ public class DoctorDbService : IDoctorService{
     public DoctorDbService(ClinicaContext context){
         this._context = context;
     }
-
+ 
     public Doctor Create(DoctorDTO d){
 
         /* if (d.DNI == null){ // Manejar el caso en el que DNI sea nulo
@@ -49,23 +49,6 @@ public class DoctorDbService : IDoctorService{
         return _context.Doctor.Include(s => s.Specialties);
     }
 
-    /* public IEnumerable<Appointment> GetAllAppointments(int doctorID){
-        return _context.Appointment
-        .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
-        .Include(a => a.Patient)
-        .Include(a => a.Specialty)
-        .Where(d => d.doctor_id == doctorID).ToList();
-    } */
-
-
-    /* public Appointment GetAppointment(int doctorID, int appointmentID){
-        return _context.Appointment
-        .Include(a => a.Doctor) //Incluyo las propiedades de navegacion, lo que me va a permitir modificar la informacion que se envia del turno el en controlador
-        .Include(a => a.Patient)
-        .Include(a => a.Specialty)
-        .FirstOrDefault(d => d.doctor_id == doctorID && d.ID == appointmentID); //Envio el primer turno que comple con esas condifiocnes
-    } */
-
     public Doctor? GetById(int id){
         return _context.Doctor.Find(id);
     }
@@ -77,9 +60,11 @@ public class DoctorDbService : IDoctorService{
             .ThenInclude(a => a.Patient) //Tambien a los pacientes de los turnos
         .Include(d => d.Appointments)
             .ThenInclude(a => a.Specialty)
+        .Include(d => d.Specialties)
         .FirstOrDefault(d => d.Name == name);
     }
 
+  
     public Doctor? Update(int id, DoctorDTO d){
         Doctor doctorUpdate = new() {
             Id = id,

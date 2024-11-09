@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,6 +13,9 @@ public class AdministratorController : ControllerBase{
 
     
     /*Aqui es donde se tienen que definir los metodos del Services para que se muestren en el navegador*/
+
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+
 
     [HttpGet]
     public ActionResult<List<Administrator>> GetAllAdministrators(){ // Obtiene todos los Doctores de la BD

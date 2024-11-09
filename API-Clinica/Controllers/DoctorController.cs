@@ -12,23 +12,12 @@ public class DoctorController : ControllerBase{
     }
 
     /*Aqui es donde se tienen que definir los metodos del Services para que se muestren en el navegador*/
- 
-    [HttpGet]
-    //[Authorize(Roles = "admin")]
-    public ActionResult<List<Doctor>> GetAllDoctors(){ // Obtiene todos los Doctores de la BD
-        //Falta mostrar las especialidades de los medicos
-        try
-      {
-        return Ok(_doctorService.GetAll());
-      }
-      catch (System.Exception e)
-      {
-        Console.WriteLine(e.Message);
-        return Problem(detail: e.Message, statusCode: 500);
-      }
-    }
+
+    [Authorize(Roles = "doctor,Doctor,DOCTOR")]
+
 
     [HttpGet("{id}")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
     public ActionResult<Doctor> GetById(int id){ //Obtengo un Doctor por su ID
         Doctor? _doctor = _doctorService.GetById(id);
@@ -37,59 +26,42 @@ public class DoctorController : ControllerBase{
         else return Ok(_doctor);
     }
 
-    
-    //[Authorize(Roles = "admin")]
-    /* [HttpGet("name")]
-    public IActionResult GetByName()
-    {
-        string nameUser = _accountService.GetUserName();
-        try{
 
-            if(string.IsNullOrEmpty(nameUser)){
-                return BadRequest("Name is required");
-            }
+    //Metodo Solo Para El Doctor
+    [HttpGet("doctor")]
+    //[Authorize(Roles = "Doctor")]
+    public ActionResult<Doctor> GetDoctor(){
+        try{
+            string userName = _accountService.GetUserName();
+
+            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
             // Llama al servicio para buscar un doctor por su nombre
-            var doctor = _doctorService.GetByName(nameUser);
-
+            Doctor? doctor = _doctorService.GetByName(userName);
 
             // Verifica si el doctor existe
             if (doctor == null) return NotFound("Doctor not found");
+            var specialties = doctor.Specialties ?? new List<Specialty>();
 
-            // Devuelve el doctor encontrado con un 200 OK
-            return Ok(doctor);
+            var _doctor = new{
+                id = doctor.Id,
+                name = doctor.Name,
+                lastName = doctor.LastName,
+                dni = doctor.DNI,
+                licenseNumber = doctor.LicenseNumber,
+                specialties = specialties.Select(s => new{
+                    s.Name,
+                }).ToList()// Devuelve una lista vacía si specialties es null
+            };
+
+            return Ok(_doctor);
         }
-        catch (Exception e)
-        {
+        catch(Exception e){
             Console.WriteLine(e.Message);
             return Problem(detail: e.Message, statusCode: 500);
         }
-    } */
-    
-
-    [HttpPost]
-    //[Authorize(Roles = "admin")]
-    public ActionResult<Doctor> Create([FromBody] DoctorDTO doctor){
-        if(doctor == null) return BadRequest("Doctor data is required.");
-        if(!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
-
-        Doctor _doctor = _doctorService.Create(doctor); // Creo al nuevo doctor
-
-        if(_doctor == null) return BadRequest("Error creating doctor.");
-
-        return CreatedAtAction(nameof(GetById), new {id = _doctor.Id}, _doctor); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo doctor
     }
 
-    [HttpDelete("{id}")]
-    //[Authorize(Roles = "admin")]
-    public ActionResult Delete(int id){
-        var _doctor = _doctorService.GetById(id);
-
-        if(_doctor == null) return NotFound("Doctor not found!!!");
-
-        _doctorService.Delete(id);
-        return NoContent();
-    }
 
     [HttpPut("{id}")]
     //[Authorize(Roles = "admin")]
@@ -97,13 +69,18 @@ public class DoctorController : ControllerBase{
         try{
 
             Doctor? doctor = _doctorService.Update(id, d);
+
             if(doctor is null) return NotFound(new {Message = $"No se pudo actualizar el doctor con id: {id}"});
+
             return CreatedAtAction(nameof(GetById), new{id = doctor.Id}, doctor);
-        }catch (System.Exception e){
+        }
+        catch (Exception e){
             Console.WriteLine(e.Message);
+
             return Problem(detail: e.Message, statusCode: 500);
         }
     }
+
 
     [HttpGet("appointments")]
     //[Authorize(Roles = "admin, doctor")]
@@ -157,7 +134,6 @@ public class DoctorController : ControllerBase{
         }
     }
  
-
 
     [HttpGet("appointment/{id}")]
     //[Authorize(Roles = "Doctor")]
@@ -235,7 +211,86 @@ public class DoctorController : ControllerBase{
         La expresión appointment.Doctor.Name significa "accede a la propiedad Doctor del objeto appointment y luego accede a la propiedad Name del objeto Doctor".
                 
     */
-        
+
+
+
+
+
+    /* [HttpGet]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    //[Authorize(Roles = "admin")]
+    public ActionResult<List<Doctor>> GetAllDoctors(){ // Obtiene todos los Doctores de la BD
+        //Falta mostrar las especialidades de los medicos
+        try
+      {
+        return Ok(_doctorService.GetAll());
+      }
+      catch (System.Exception e)
+      {
+        Console.WriteLine(e.Message);
+        return Problem(detail: e.Message, statusCode: 500);
+      }
+    } */
+
+
+    //[Authorize(Roles = "admin")]
+    /* [HttpGet("name")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult GetByName()
+    {
+        string nameUser = _accountService.GetUserName();
+        try{
+
+            if(string.IsNullOrEmpty(nameUser)){
+                return BadRequest("Name is required");
+            }
+
+            // Llama al servicio para buscar un doctor por su nombre
+            var doctor = _doctorService.GetByName(nameUser);
+
+
+            // Verifica si el doctor existe
+            if (doctor == null) return NotFound("Doctor not found");
+
+            // Devuelve el doctor encontrado con un 200 OK
+            return Ok(doctor);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
+    } */
+    
+
+    /* [HttpPost]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    //[Authorize(Roles = "admin")]
+    public ActionResult<Doctor> Create([FromBody] DoctorDTO doctor){
+        if(doctor == null) return BadRequest("Doctor data is required.");
+        if(!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+
+        Doctor _doctor = _doctorService.Create(doctor); // Creo al nuevo doctor
+
+        if(_doctor == null) return BadRequest("Error creating doctor.");
+
+        return CreatedAtAction(nameof(GetById), new {id = _doctor.Id}, _doctor); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo doctor
+    } */
+
+
+    /* [HttpDelete("{id}")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    //[Authorize(Roles = "admin")]
+    public ActionResult Delete(int id){
+        var _doctor = _doctorService.GetById(id);
+
+        if(_doctor == null) return NotFound("Doctor not found!!!");
+
+        _doctorService.Delete(id);
+        return NoContent();
+    } */
+
+
     
 
 }

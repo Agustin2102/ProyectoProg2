@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc; 
 
 [ApiController] 
@@ -13,6 +14,10 @@ public class SpecialtyController : ControllerBase
         this._specialtyService = specialtyService; // inicializa el servicio de especialidad
         this._doctorService = doctorService; // inicializa el servicio de doctor
     }
+
+
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+
 
     
     [HttpGet] 
