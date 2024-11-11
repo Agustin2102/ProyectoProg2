@@ -50,7 +50,7 @@ public class DoctorDbService : IDoctorService{
     }
 
     public Doctor? GetById(int id){
-        return _context.Doctor.Find(id);
+        return _context.Doctor.Include(s => s.Specialties).FirstOrDefault(d => d.Id == id);
     }
 
     public Doctor? GetByName(string name)

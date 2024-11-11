@@ -9,19 +9,11 @@ public class Specialty
     public List<Doctor> Doctors{get; set;}
     
     // Constructor    
-    public Specialty(int id, string name)
-        {
+    public Specialty(int id, string name){
             Id = id;
             Name = name;
-        }
+    }
     
     public Specialty(){} //constructor sin parametros para poder crear sin tener q pasar el id (specialtydbservice)
 
-
-
-    // Override del método ToString
-    public override string ToString()
-    {
-        return $"Specialty ID: {Id}, Name: {Name}";
-    }
 }

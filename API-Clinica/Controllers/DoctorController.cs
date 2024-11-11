@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/doctors")] 
 public class DoctorController : ControllerBase{
     private readonly IDoctorService _doctorService;
+    private readonly IPatientService _patientService;
     private readonly AccountDbService _accountService;
-    public DoctorController(IDoctorService doctorService, AccountDbService accountService){
+    public DoctorController(IDoctorService doctorService, AccountDbService accountService, IPatientService patientService){
         this._doctorService = doctorService;
+        this._patientService = patientService;
         this._accountService = accountService;
     }
 
@@ -20,6 +22,8 @@ public class DoctorController : ControllerBase{
     [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
     public ActionResult<Doctor> GetById(int id){ //Obtengo un Doctor por su ID
+        //if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+        
         Doctor? _doctor = _doctorService.GetById(id);
 
         if(_doctor == null) return NotFound("Doctor not found");
@@ -31,6 +35,8 @@ public class DoctorController : ControllerBase{
     [HttpGet("doctor")]
     //[Authorize(Roles = "Doctor")]
     public ActionResult<Doctor> GetDoctor(){
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
         try{
             string userName = _accountService.GetUserName();
 
@@ -66,6 +72,9 @@ public class DoctorController : ControllerBase{
     [HttpPut("doctor")]
     //[Authorize(Roles = "admin")]
     public ActionResult<Doctor> UpdateDoctor(DoctorDTO d){
+
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
         try{
 
             string userName = _accountService.GetUserName();
@@ -92,6 +101,9 @@ public class DoctorController : ControllerBase{
     [HttpGet("appointments")]
     //[Authorize(Roles = "admin, doctor")]
     public ActionResult<List<Appointment>> GetAllAppointments(){
+
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
         try{
 
             string userName = _accountService.GetUserName();
@@ -145,6 +157,9 @@ public class DoctorController : ControllerBase{
     [HttpGet("appointment/{id}")]
     //[Authorize(Roles = "Doctor")]
     public ActionResult<Appointment> GetAppointmentById(int id){
+
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
         try{
             
             int appointmentId = id;
@@ -203,6 +218,78 @@ public class DoctorController : ControllerBase{
             return Problem(detail: e.Message, statusCode: 500);
         }
     }
+
+
+    [HttpGet("patients")]
+    //[Authorize(Roles = "admin, doctor")]
+    public ActionResult<List<Appointment>> GetAllPatients(){
+
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
+        try{
+
+            string userName = _accountService.GetUserName();
+
+            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+
+            // Llama al servicio para buscar un doctor por su nombre
+            var doctor = _doctorService.GetByName(userName);
+
+
+            // Verifica si el doctor existe
+            if (doctor == null) return NotFound("Doctor not found");
+            // Verifica si el doctor tiene citas
+            if (doctor.Appointments == null || !doctor.Appointments.Any()) return NotFound("No appointments found for this doctor.");
+
+            //.DistinctBy(p => p.Id) lo que hace filtrar los pacientes de forma que no se repitan
+            var patientsInfo = doctor.Appointments.Select(a => a.Patient).DistinctBy(p => p.Id).Select(p => new {
+                id = p.Id,
+                name = p.Name,
+                lastName = p.LastName,
+                email = p.Email,
+                telephone = p.TelephoneNumber,
+                address = p.Address
+            }).ToList();
+
+            return Ok(patientsInfo);
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
+    }
+
+
+    [HttpGet("patient/{id}")]
+    //[ApiExplorerSettings(IgnoreApi = true)]
+    public ActionResult<Patient> GetPatientById(int id){
+
+        if (!User.IsInRole("doctor") && !User.IsInRole("Doctor") && !User.IsInRole("DOCTOR")) return Forbid();
+
+        Patient? patient = _patientService.GetById(id);
+
+        if (patient == null) return NotFound("Pacient not found");
+
+        //Como no quiero que se agregen los turnos del usuario -> modifico los datos que se envian
+        var _patientInfo = new {
+            id = patient.Id,
+            name = patient.Name,
+            lastName = patient.LastName,
+            dateOfBirth = patient.DateOfBirth,
+            email = patient.Email,
+            telephone = patient.TelephoneNumber,
+            address = patient.Address,
+            medicalHistory = patient.MedicalHistory
+        };
+
+        return Ok(_patientInfo);
+        
+    }
+
+
+
+
+
 
 
     /* Explicación.

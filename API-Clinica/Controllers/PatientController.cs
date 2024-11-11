@@ -1,16 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
 
-[ApiController] 
+[ApiController]
 [Route("api/patients")]
-public class PatientController : ControllerBase
-{
+public class PatientController : ControllerBase{
     private readonly IPatientService _patientService;
+    private readonly IDoctorService _doctorService;
+    private readonly ISpecialtyService _specialtyService;
     private readonly IAppointmentService _appointmentService;
     private readonly AccountDbService _accountService;
-    public PatientController(IPatientService patientService, IAppointmentService appointmentService, AccountDbService accountService){
+    public PatientController(IPatientService patientService, IAppointmentService appointmentService, AccountDbService accountService,
+                            IDoctorService doctorService, ISpecialtyService specialtyService)
+    {
         this._patientService = patientService;
+        this._doctorService = doctorService;
+        this._specialtyService = specialtyService;
         this._appointmentService = appointmentService;
         this._accountService = accountService;
     }
@@ -24,8 +30,9 @@ public class PatientController : ControllerBase
     [HttpGet("{id}")]
     [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
-    public ActionResult<Patient> GetById(int id)
-    {
+    public ActionResult<Patient> GetById(int id){
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         Patient? d = _patientService.GetById(id);
 
         if (d == null) return NotFound("Pacient not found");
@@ -37,18 +44,18 @@ public class PatientController : ControllerBase
     //[Authorize(Roles = "admin")]
     public ActionResult<Patient> UpdatePatient(PatientDTO updatedPatientDto){
 
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         string userName = _accountService.GetUserName();
-        if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+        if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
         int? userId = _patientService.GetId(userName);
-        if(!userId.HasValue) return BadRequest("No se encontro el Id del Doctor");
+        if (!userId.HasValue) return BadRequest("No se encontro el Id del Doctor");
 
         // Obtener el paciente existente
         var patient = _patientService.GetById((int)userId);
-        if (patient == null)
-        {
-            return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
-        }
+        if (patient == null) return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
+        
 
         // Asignar valores desde el DTO al paciente
         patient.Name = updatedPatientDto.Name;
@@ -68,19 +75,22 @@ public class PatientController : ControllerBase
 
     [HttpGet("patient")]
     //[Authorize(Roles = "Patient")]
-    public ActionResult<Doctor> GetPatient(){
+    public ActionResult<Doctor> GetPatient()
+    {
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         try{
             string userName = _accountService.GetUserName();
 
-            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+            if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
             //Una vez tengo el nombre del usuario lo busco en la BD (al paciente se le agregan los turnos asociados, y a los turnos los demas objetos que estan asociados)
             var patient = _patientService.GetByName(userName);
 
             //Verifico si el paciente existe
-            if(patient == null) return NotFound("Patient not found");
+            if (patient == null) return NotFound("Patient not found");
 
-            var _patient= new{
+            var _patient = new {
                 id = patient.Id,
                 name = patient.Name,
                 lastName = patient.LastName,
@@ -93,7 +103,8 @@ public class PatientController : ControllerBase
 
             return Ok(_patient);
         }
-        catch(Exception e){
+        catch (Exception e)
+        {
             Console.WriteLine(e.Message);
             return Problem(detail: e.Message, statusCode: 500);
         }
@@ -102,6 +113,9 @@ public class PatientController : ControllerBase
 
     [HttpGet("appointments")]
     public ActionResult<List<Appointment>> GetAllAppointments(){
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         try{
 
             //Obtengo el nombre del suario (paciente) del los claims
@@ -113,9 +127,9 @@ public class PatientController : ControllerBase
             var patient = _patientService.GetByName(userName);
 
             //Verifico si el paciente existe
-            if(patient == null) return NotFound("Patient not found");
+            if (patient == null) return NotFound("Patient not found");
             //Verifico si el paciente tiene turnos
-            if(patient.Appointments == null || !patient.Appointments.Any()) return NotFound("No appointments found for this doctor.");
+            if (patient.Appointments == null || !patient.Appointments.Any()) return NotFound("No appointments found for this doctor.");
 
             var appointments = patient.Appointments?.Select(a => new {
                 //Datos propios del turno (sin modificación)
@@ -143,6 +157,7 @@ public class PatientController : ControllerBase
             return Ok(appointments);
         }
         catch (Exception e){
+
             Console.WriteLine(e.Message);
             return Problem(detail: e.Message, statusCode: 500);
         }
@@ -151,27 +166,31 @@ public class PatientController : ControllerBase
 
     [HttpGet("appointment/{id}")]
     public ActionResult<Appointment> GetAppointmentById(int id){
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         try{
+
             int appointmentId = id;
 
             //Obtengo el nombre del suario (paciente) del los claims
             string userName = _accountService.GetUserName();
 
-            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+            if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
             //Una vez tengo el nombre del usuario lo busco en la BD (al paciente se le agregan los turnos asociados, y a los turnos los demas objetos que estan asociados)
             var patient = _patientService.GetByName(userName);
 
             //Verifico si el paciente existe
-            if(patient == null) return NotFound("Patient not found");
+            if (patient == null) return NotFound("Patient not found");
             //Verifico si el paciente tiene turnos
-            if(patient.Appointments == null || !patient.Appointments.Any()) return NotFound("No appointments found for this doctor.");
+            if (patient.Appointments == null || !patient.Appointments.Any()) return NotFound("No appointments found for this doctor.");
 
             //Busco el turno especifico del paciente
             var appointment = patient.Appointments.FirstOrDefault(a => a.ID == appointmentId);
 
             //Verifico si el turno con el id espeficicado esxiste
-            if(appointment == null) return NotFound("The appointment with the specified Id was not found.");
+            if (appointment == null) return NotFound("The appointment with the specified Id was not found.");
 
             var responseAppointment = new {
                 //Datos propios del turno (sin modificar)
@@ -199,6 +218,7 @@ public class PatientController : ControllerBase
             return Ok(responseAppointment);
         }
         catch (Exception e){
+
             Console.WriteLine(e.Message);
             // Si ocurre un error, devuelve un mensaje con el error y un código de estado 500
             return Problem(detail: e.Message, statusCode: 500);
@@ -207,10 +227,13 @@ public class PatientController : ControllerBase
 
 
     [HttpDelete("appointment/{id}")]
-    public IActionResult DeleteAppointment(int id) 
+    public IActionResult DeleteAppointment(int id)
     {
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
         var appointment = _appointmentService.GetById(id); // busca la cita por id
-        
+
         // verifica si no se encontro la cita
         if (appointment == null) return NotFound(); // devuelve 404 si no se encuentra
 
@@ -220,8 +243,74 @@ public class PatientController : ControllerBase
     }
 
 
+    [HttpGet("doctors")]
+    public ActionResult<List<Doctor>> GetAllDoctors(){
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
+        try{
+
+            var doctors = _doctorService.GetAll();
+            if (doctors == null || !doctors.Any()) return BadRequest("No pudo acceder a la lista de doctores.");
 
 
+            //Los unicos datos que se va a querer mostrar en este caso es informacion basica de los doctores
+            var _doctors = doctors.Select(d => new {
+                id = d.Id,
+                name = d.Name,
+                lastName = d.LastName,
+                specialty = d.Specialties.Select(s => s.Name).ToList() // lista de nombres de especialidades
+            }).ToList();
+
+            return Ok(_doctors);
+        }
+        catch (Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
+    }
+
+    [HttpGet("doctor/{id}")]
+    public ActionResult<Doctor> GetDoctorById(int id){ //Obtengo un Doctor por su ID
+        
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
+        
+        Doctor? doctor = _doctorService.GetById(id);
+
+        if (doctor == null) return NotFound("Doctor not found");
+
+        var _doctor = new {
+            lincenseNumber = doctor.LicenseNumber,
+            name = doctor.Name,
+            lastName = doctor.LastName,
+            email = doctor.Email,
+            telephone = doctor.TelephoneNumber,
+            specialty = doctor.Specialties.Select(d => d.Name).ToList() 
+        };
+
+        return Ok(_doctor);
+    }
+
+
+
+    [HttpGet("specialties")] 
+    public ActionResult<IEnumerable<Specialty>> GetAllSpecialties() 
+    {
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
+        return Ok(_specialtyService.GetAll()); // retorna una lista de especialidades
+    }
+
+
+    /* [HttpGet("specialty/{id}")] 
+    public ActionResult<Specialty> GetSpecialtyById(int id) 
+    {
+        var specialty = _specialtyService.GetById(id); // busca la especialidad por id
+        if (specialty == null) // verifica si no se encontro la especialidad
+            return NotFound("Specialty not found."); // retorna 404 si no se encuentra
+        return Ok(specialty); // retorna la especialidad encontrada
+    } */
 
 
 
@@ -256,3 +345,5 @@ public class PatientController : ControllerBase
     } */
 
 }
+
+

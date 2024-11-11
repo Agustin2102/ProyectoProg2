@@ -9,32 +9,33 @@ public class AppointmentController : ControllerBase
     private readonly IAppointmentService _appointmentService;
 
     //constructor que recibe la dependencia del servicio de citas
-    public AppointmentController(IAppointmentService appointmentService) 
-    {
+    public AppointmentController(IAppointmentService appointmentService){
         this._appointmentService = appointmentService; // inicializa el servicio de citas
     }
 
 
-    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    //[Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
 
 
 
     [HttpGet] 
-    //[Authorize(Roles = "admin")]
-    public ActionResult<List<Appointment>> GetAllAppointments() 
-    {
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    public ActionResult<List<Appointment>> GetAllAppointments(){
+        if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
+
         var appointments = _appointmentService.GetAll(); // obtiene la lista de citas
         return Ok(appointments); // retorna la lista de citas
     }
 
 
     [HttpGet("{id}")] 
-    //[Authorize(Roles = "admin")]
-    public ActionResult<Appointment> GetById(int id) 
-    {
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    public ActionResult<Appointment> GetById(int id){
+        if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
+
         var appointment = _appointmentService.GetById(id); // busca la cita por id
-        if (appointment == null) // verifica si no se encontro la cita
-        {
+        
+        if (appointment == null){ // verifica si no se encontro la cita
             return NotFound("Appointment not found"); // retorna 404 si no se encuentra
         }
         return Ok(appointment); // retorna la cita encontrada
@@ -42,58 +43,54 @@ public class AppointmentController : ControllerBase
 
   
     [HttpPost] 
-    //[Authorize(Roles = "admin, patient")]
-    public ActionResult<Appointment> Create(AppointmentDTO appointmentDto)
-    {
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    public ActionResult<Appointment> Create(AppointmentDTO appointmentDto){
+
+        if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
         if (appointmentDto == null) return BadRequest("Appointment data is required.");
-
-
+        
         try{
             Appointment _appointment = _appointmentService.Create(appointmentDto);
 
             return CreatedAtAction(nameof(GetById), new { id = _appointment.ID }, _appointment);
         }
-        catch (DbUpdateException ex)
-        {
+        catch (DbUpdateException ex){
             // Aquí puedes registrar el detalle de la excepción o devolver una respuesta detallada
             throw new Exception("Database update failed: " + ex.InnerException?.Message);
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex){
             throw new Exception("An error occurred while creating the appointment: " + ex.Message);
-    }
+        }
     }
 
 
     // metodo para actualizar una cita existente
     [HttpPut("{id}")] 
-    //[Authorize(Roles = "admin")] 
-    public IActionResult Update(int id, [FromBody] AppointmentDTO appointmentDto) 
-    {
-        if (appointmentDto == null) // comprueba si el DTO es nulo
-        {
-            return BadRequest("Appointment data is required."); // retorna 400 si es nulo
-        }
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    public IActionResult Update(int id, [FromBody] AppointmentDTO appointmentDto){
+
+        if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
+        if (appointmentDto == null) return BadRequest("Appointment data is required."); // retorna 400 si es nulo
 
         // validar que los campos requeridos estan presentes
-        if (!ModelState.IsValid) 
-        {
-            return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
-        }
+        if (!ModelState.IsValid)return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
 
         var updatedAppointment = _appointmentService.Update(id, appointmentDto); // actualiza la cita
-        if (updatedAppointment == null) // verifica si la cita no se encontro
-        {
+        if (updatedAppointment == null){ // verifica si la cita no se encontro
             return NotFound("Appointment not found"); // retorna 404 si no se encuentra
         }
+
+
         return Ok(updatedAppointment); // retorna la cita actualizada
     }
 
     // metodo para eliminar una cita por su ID
     [HttpDelete("{id}")] 
-    //[Authorize(Roles = "admin")]
-    public IActionResult DeleteAppointment(int id) 
-    {
+    [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
+    public IActionResult DeleteAppointment(int id){
+
+        if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
+
         var appointment = _appointmentService.GetById(id); // busca la cita por id
         if (appointment == null) // verifica si no se encontro la cita
         {
