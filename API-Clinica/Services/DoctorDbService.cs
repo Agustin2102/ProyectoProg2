@@ -8,13 +8,6 @@ public class DoctorDbService : IDoctorService{
     }
  
     public Doctor Create(DoctorDTO d){
-
-        /* if (d.DNI == null){ // Manejar el caso en el que DNI sea nulo
-            throw new ArgumentException("DNI cannot be null");
-        } */
-        if (d.LicenseNumber == null){ // Manejar el caso en el que LicenseNumber sea nulo
-            throw new ArgumentException("LicenseNumber cannot be null");
-        }
  
         Doctor doctor = new(){
             Name = d.Name,
@@ -73,15 +66,33 @@ public class DoctorDbService : IDoctorService{
 
 
     public Doctor? Update(int id, DoctorDTO d){
-        Doctor doctorUpdate = new() {
-            Id = id,
-            Name = d.Name,
-            LastName = d.LastName,
-            DNI = d.DNI.Value,
-            Email = d.Email,
-            TelephoneNumber = d.TelephoneNumber,
-            LicenseNumber = d.LicenseNumber.Value
-        };
+
+        // Buscar el doctor existente en la base de datos
+        var doctorUpdate = _context.Doctor
+        .Include(doc => doc.Specialties) // Incluir las especialidades para evitar problemas al actualizar la relación
+        .FirstOrDefault(doc => doc.Id == id);
+
+        // Actualizar propiedades del doctor existente
+        doctorUpdate.Name = d.Name;
+        doctorUpdate.LastName = d.LastName;
+        doctorUpdate.DNI = d.DNI.Value;
+        doctorUpdate.Email = d.Email;
+        doctorUpdate.TelephoneNumber = d.TelephoneNumber;
+        doctorUpdate.LicenseNumber = d.LicenseNumber.Value;
+
+        // Limpiar las especialidades actuales para luego reasignarlas
+        doctorUpdate.Specialties.Clear();
+
+        // Asignar las nuevas especialidades
+        if (d.SpecialtyIds != null && d.SpecialtyIds.Any())
+        {
+            var specialties = _context.Specialty
+                .Where(s => d.SpecialtyIds.Contains(s.Id))
+                .ToList();
+            doctorUpdate.Specialties.AddRange(specialties);
+        }
+
+
         _context.Entry(doctorUpdate).State = EntityState.Modified;
         _context.SaveChanges();
         return doctorUpdate;

@@ -7,6 +7,6 @@ public interface IAdministratorService{
     public Administrator Create(AdministratorDTO a);
 
     public void Delete(int id);
-    public Administrator? Update(int id, Administrator a);
+    public Administrator? Update(int id, AdministratorDTO a);
     public IEnumerable<Appointment> GetAppointment(int id);
 }
