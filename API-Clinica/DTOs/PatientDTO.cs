@@ -3,10 +3,6 @@ using System.ComponentModel.DataAnnotations;
 public class PatientDTO{
 
      //Agrego en el DTO los campos minimos que tengo que completar para poder crear el objeto
-    [Required(ErrorMessage = "El campo Id es requerido.")]
-    public int? Id {get; set;} // Nombre del Paciente
-    //Agrego en el DTO los campos minimos que tengo que completar para poder crear el objeto
-
     [Required(ErrorMessage = "El campo Name es requerido.")]
     public string? Name {get; set;} // Nombre del Paciente
     
@@ -28,6 +24,6 @@ public class PatientDTO{
     [Required(ErrorMessage = "El campo Address es requerido.")]
     public string? Address {get; set;} // Direccion del Paciente
 
-      [Required(ErrorMessage = "El campo MedicalHistory es requerido.")]
+    [Required(ErrorMessage = "El campo MedicalHistory es requerido.")]
     public string? MedicalHistory {get; set;} // Direccion del Paciente
 }

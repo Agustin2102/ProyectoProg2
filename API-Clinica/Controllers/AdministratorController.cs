@@ -66,28 +66,34 @@ public class AdministratorController : ControllerBase
 
     [HttpPut("administrator/{id}")]
     [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
-    public ActionResult<Administrator> UpdateAdministrator(int id, Administrator updatedAdministrator)
+    public ActionResult<Administrator> UpdateAdministratorById(int id, [FromBody] AdministratorDTO administratorDTO)
     {
         if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
-        // Asegurarse de que el ID del paciente en la solicitud coincida con el ID del parámetro
-        if (id != updatedAdministrator.Id) return BadRequest("El ID del administrador en la URL no coincide con el ID del administrador en el cuerpo de la solicitud.");
+        
+        try{
+            if(administratorDTO is null) return BadRequest("Administrtor data is required.");
+            if (!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
 
-        var administrator = _administratorService.Update(id, updatedAdministrator);
+            Administrator? administrator = _administratorService.Update(id, administratorDTO);
+            if (administrator is null) return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
 
-        if (administrator is null) return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
+            return CreatedAtAction(nameof(GetById), new { id = administrator.Id }, administrator); // Retorna el recurso actualizado
 
-        return CreatedAtAction(nameof(GetById), new { id = administrator.Id }, administrator); // Retorna el recurso actualizado
+        }
+        catch (Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
     }
 
 
     [HttpPut("administrator")]
     [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
-    public ActionResult<Administrator> UpdateAdministrator(AdministratorDTO updatedAdministrator){
+    public ActionResult<Administrator> UpdateAdministrator([FromBody]AdministratorDTO administratorDTO){
         
         if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
         
         try{
-            
 
             string userName = _accountService.GetUserName();
             if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
@@ -95,19 +101,10 @@ public class AdministratorController : ControllerBase
             int? userId = _administratorService.GetId(userName);
             if(!userId.HasValue) return BadRequest("No se encontro el Id del Administrador");
 
+            Administrator? administrator = _administratorService.Update((int)userId, administratorDTO);
+            if (administrator is null) return NotFound(new { Message = $"No se pudo actualizar el doctor con id: {userId}" }); // Si no se encontró el paciente, retorna 404 Not Found
 
-            Administrator _administrator = new Administrator{
-                Id = (int)userId,
-                Name = updatedAdministrator.Name,
-                Email = updatedAdministrator.Email,
-                // Otros campos que quieras mapear
-            };
-
-            var administrator = _administratorService.Update((int)userId, _administrator);
-
-            if(administrator is null) return NotFound(new {Message = $"No se pudo actualizar el doctor con id: {userId}"});
-
-            return CreatedAtAction(nameof(GetById), new{id = administrator.Id}, administrator);
+            return CreatedAtAction(nameof(GetById), new { id = administrator.Id }, administrator); // Retorna el recurso actualizado
         }
         catch (Exception e){
             Console.WriteLine(e.Message);

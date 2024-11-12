@@ -62,10 +62,18 @@ public class AdministratorDbService : IAdministratorService
     }
 
 
-    public Administrator? Update(int id, Administrator a)
-    {
-        _context.Entry(a).State = EntityState.Modified;
+    public Administrator? Update(int id, AdministratorDTO administratorDTO)
+    {   
+        var administratorUpdate = GetById(id);
+
+        administratorUpdate.Name = administratorDTO.Name;
+        administratorUpdate.LastName = administratorDTO.LastName;
+        administratorUpdate.DNI = (int)administratorDTO.DNI;
+        administratorUpdate.Email = administratorDTO.Email;
+        administratorUpdate.TelephoneNumber = administratorDTO.TelephoneNumber;
+
+        _context.Entry(administratorUpdate).State = EntityState.Modified;
         _context.SaveChanges();
-        return a;
+        return administratorUpdate;
     }
 }

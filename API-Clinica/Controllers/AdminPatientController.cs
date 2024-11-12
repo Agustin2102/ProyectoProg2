@@ -37,12 +37,17 @@ public class AdminPatientController : ControllerBase{
 
     [HttpPost("patient")]
     [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
-    public ActionResult<Patient> Create(PatientDTO d){
+    public ActionResult<Patient> Create([FromBody] PatientDTO patientDTO){
         if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
         
-        Patient _patient = _patientService.Create(d); // Llamo al metodo Create del servicio de autor para dar de alta el nuevo Doctor
+        if(patientDTO is null) return BadRequest("Patient data is required.");
+        if (!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+
+        Patient _patient = _patientService.Create(patientDTO);
+
+        if(_patient is null) return BadRequest("Error creating patient.");
         
-        return CreatedAtAction(nameof(GetById), new { id = _patient.Id }, _patient); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo doctor
+        return CreatedAtAction(nameof(GetById), new { id = _patient.Id }, _patient); // Devuelvo el resultado de llamar al metodo GetById pasando como parametro el Id del nuevo paciente
     }
 
     [HttpDelete("patient/{id}")]
@@ -61,30 +66,23 @@ public class AdminPatientController : ControllerBase{
 
     [HttpPut("patient/{id}")]
     [Authorize(Roles = "administrator,Administrator,ADMINISTRATOR")]
-    public ActionResult<Patient> UpdatePatient(int id, PatientDTO updatedPatientDto)
-    {
+    public ActionResult<Patient> UpdatePatient(int id, PatientDTO patientDTO) {
+
         if (!User.IsInRole("administrator") && !User.IsInRole("Administrator") && !User.IsInRole("ADMINISTRATOR")) return Forbid();
-        // Asegúrate de que el ID en la URL coincida con el ID en el DTO
-        if (id != updatedPatientDto.Id) return BadRequest("El ID del paciente en la URL no coincide con el ID del paciente en el cuerpo de la solicitud.");
 
-        // Obtener el paciente existente
-        var patient = _patientService.GetById(id);
-        if (patient == null) return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
-        
+        try{
+            if(patientDTO is null) return BadRequest("Patient data is required.");
+            if (!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+            
+            Patient? patient = _patientService.Update(id, patientDTO);
+            if(patient is null) NotFound(new { Message = $"No se pudo actualizar el paciente con id: {id}" }); 
 
-        // Asignar valores desde el DTO al paciente
-        patient.Name = updatedPatientDto.Name;
-        patient.LastName = updatedPatientDto.LastName;
-        patient.DNI = updatedPatientDto.DNI;
-        patient.Email = updatedPatientDto.Email;
-        patient.TelephoneNumber = updatedPatientDto.TelephoneNumber;
-        patient.DateOfBirth = updatedPatientDto.DateOfBirth;
-        patient.Address = updatedPatientDto.Address;
-
-
-        // Actualizar el paciente en la base de datos
-        _patientService.Update(id, patient);
-        return Ok(patient); // Retorna  para indicar que la actualización fue exitosa
+            return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
     }
 
 

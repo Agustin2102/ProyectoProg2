@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 public class AppointmentDTO
 {
-    [Required(ErrorMessage = "El campo Id de Paciente es requerido.")]
+    //[Required(ErrorMessage = "El campo Id de Paciente es requerido.")]
     public int patient_id  { get; set; } // ID del paciente
 
     [Required(ErrorMessage = "El campo Id de Doctor es requerido.")]

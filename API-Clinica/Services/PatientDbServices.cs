@@ -1,15 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 
-public class PatientDbService : IPatientService{
+public class PatientDbService : IPatientService
+{
     private readonly ClinicaContext _context;
 
-    public PatientDbService(ClinicaContext context){
+    public PatientDbService(ClinicaContext context)
+    {
         this._context = context;
-    } 
+    }
 
     public Patient Create(PatientDTO d)
     {
-    Patient patient = new(){
+        Patient patient = new()
+        {
             Name = d.Name,
             LastName = d.LastName,
             DNI = d.DNI,
@@ -19,50 +22,47 @@ public class PatientDbService : IPatientService{
             Address = d.Address,
             MedicalHistory = d.MedicalHistory ?? "" // Valor predeterminado si es nulo
 
-        }; 
+        };
         _context.Patient.Add(patient);
         _context.SaveChanges();
         return patient;
     }
 
-   /*      public IEnumerable<Appointment> GetAllAppointments(int PatientId){
-        return _context.Appointment.Where(d => d.patient_id == PatientId).ToList();
-    } */
+    /*      public IEnumerable<Appointment> GetAllAppointments(int PatientId){
+         return _context.Appointment.Where(d => d.patient_id == PatientId).ToList();
+     } */
 
 
     /* public IEnumerable<Appointment> GetAppointment(int id){
         throw new NotImplementedException();
     } */
 
-    public void Delete(int id)
-    {
-         var patient = _context.Patient.Include(p => p.Appointments).FirstOrDefault(p => p.Id == id);
-    
-    if (patient != null)
-    {
-        // Elimina todas os turnos asociadas a este paciente
-        _context.Appointment.RemoveRange(patient.Appointments);
+    public void Delete(int id){
 
-        // Luego elimina el paciente
-        _context.Patient.Remove(patient);
-        _context.SaveChanges();
-    }
+        var patient = _context.Patient.Include(p => p.Appointments).FirstOrDefault(p => p.Id == id);
+
+        if (patient != null){
+            // Elimina todas os turnos asociadas a este paciente
+            _context.Appointment.RemoveRange(patient.Appointments);
+
+            // Luego elimina el paciente
+            _context.Patient.Remove(patient);
+            _context.SaveChanges();
+        }
     }
 
-    public IEnumerable<Patient> GetAll()
-    {
+    public IEnumerable<Patient> GetAll(){
         return _context.Patient;
     }
 
-  
 
-    public Patient? GetById(int id)
-    {
+
+    public Patient? GetById(int id){
         return _context.Patient.Find(id);
     }
 
-    public Patient? GetByName(string name)
-    {
+    public Patient? GetByName(string name){
+
         return (Patient?)_context.Patient
             .Include(p => p.Appointments) //Incluyo los turnos del Paciente
                 .ThenInclude(a => a.Doctor) // Incluyo al Doctor del turno para acceder a los datos
@@ -71,17 +71,33 @@ public class PatientDbService : IPatientService{
             .FirstOrDefault(d => d.Name == name);
     }
 
-    public int? GetId(string name) {
+    public int? GetId(string name)
+    {
         return _context.Patient
             .Where(p => p.Name == name)
             .Select(p => p.Id)
             .FirstOrDefault();
     }
 
-    public Patient? Update(int id, Patient a)
-    {
-        _context.Entry(a).State = EntityState.Modified;
+    public Patient? Update(int id, PatientDTO patientDTO){
+
+        //Busco el paciente en la base de datos
+        var patientUpdate = GetById(id);
+
+        // Asignar valores desde el DTO al paciente
+        patientUpdate.Name = patientDTO.Name;
+        patientUpdate.LastName = patientDTO.LastName;
+        patientUpdate.DNI = patientDTO.DNI;
+        patientUpdate.Email = patientDTO.Email;
+        patientUpdate.TelephoneNumber = patientDTO.TelephoneNumber;
+        patientUpdate.DateOfBirth = patientDTO.DateOfBirth;
+        patientUpdate.Address = patientDTO.Address;
+        patientUpdate.MedicalHistory = patientDTO.MedicalHistory;
+        
+
+        _context.Entry(patientUpdate).State = EntityState.Modified;
         _context.SaveChanges();
-        return a;
+        return patientUpdate;
     }
+
 }

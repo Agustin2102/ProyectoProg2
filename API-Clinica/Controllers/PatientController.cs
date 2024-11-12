@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/patients")]
@@ -30,46 +31,40 @@ public class PatientController : ControllerBase{
     [HttpGet("{id}")]
     [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
-    public ActionResult<Patient> GetById(int id){
+    public ActionResult<Patient> GetPatientById(int id){
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
-        Patient? d = _patientService.GetById(id);
+        Patient? patient = _patientService.GetById(id);
 
-        if (d == null) return NotFound("Pacient not found");
-        else return Ok(d);
+        if (patient == null) return NotFound("Pacient not found");
+        else return Ok(patient);
     }
 
-
     [HttpPut("patient")]
-    //[Authorize(Roles = "admin")]
-    public ActionResult<Patient> UpdatePatient(PatientDTO updatedPatientDto){
+    [Authorize(Roles = "patient,Patient,PATIENT")]
+    public ActionResult<Patient> UpdatePatient(PatientDTO patientDTO) {
 
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
-        string userName = _accountService.GetUserName();
-        if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+        try{
+            if(patientDTO is null) return BadRequest("Patient data is required.");
+            if (!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+            
+            string userName = _accountService.GetUserName();
+            if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
-        int? userId = _patientService.GetId(userName);
-        if (!userId.HasValue) return BadRequest("No se encontro el Id del Doctor");
+            int? userId = (int)_patientService.GetId(userName);
+            if(!userId.HasValue) return BadRequest("No se encontro el Id del Paciente");
 
-        // Obtener el paciente existente
-        var patient = _patientService.GetById((int)userId);
-        if (patient == null) return NotFound(); // Si no se encontró el paciente, retorna 404 Not Found
-        
+            Patient? patient = _patientService.Update((int)userId, patientDTO);
+            if(patient is null) NotFound(new { Message = $"No se pudo actualizar el paciente con id: {userId}" }); 
 
-        // Asignar valores desde el DTO al paciente
-        patient.Name = updatedPatientDto.Name;
-        patient.LastName = updatedPatientDto.LastName;
-        patient.DNI = updatedPatientDto.DNI;
-        patient.Email = updatedPatientDto.Email;
-        patient.TelephoneNumber = updatedPatientDto.TelephoneNumber;
-        patient.DateOfBirth = updatedPatientDto.DateOfBirth;
-        patient.Address = updatedPatientDto.Address;
-
-
-        // Actualizar el paciente en la base de datos
-        _patientService.Update((int)userId, patient);
-        return Ok(patient); // Retorna  para indicar que la actualización fue exitosa
+            return CreatedAtAction(nameof(GetPatientById), new { id = patient.Id }, patient);
+        }
+        catch(Exception e){
+            Console.WriteLine(e.Message);
+            return Problem(detail: e.Message, statusCode: 500);
+        }
     }
 
 
@@ -81,7 +76,6 @@ public class PatientController : ControllerBase{
 
         try{
             string userName = _accountService.GetUserName();
-
             if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
             //Una vez tengo el nombre del usuario lo busco en la BD (al paciente se le agregan los turnos asociados, y a los turnos los demas objetos que estan asociados)
@@ -112,7 +106,7 @@ public class PatientController : ControllerBase{
 
 
     [HttpGet("appointments")]
-    public ActionResult<List<Appointment>> GetAllAppointments(){
+    public ActionResult<List<Appointment>> GetAllAppointments_Patient(){
 
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
@@ -165,7 +159,7 @@ public class PatientController : ControllerBase{
     }
 
     [HttpGet("appointment/{id}")]
-    public ActionResult<Appointment> GetAppointmentById(int id){
+    public ActionResult<Appointment> GetAppointmentById_Patient(int id){
 
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
@@ -226,25 +220,9 @@ public class PatientController : ControllerBase{
     }
 
 
-    [HttpDelete("appointment/{id}")]
-    public IActionResult DeleteAppointment(int id)
-    {
-
-        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
-
-        var appointment = _appointmentService.GetById(id); // busca la cita por id
-
-        // verifica si no se encontro la cita
-        if (appointment == null) return NotFound(); // devuelve 404 si no se encuentra
-
-        _appointmentService.Delete(id); // elimina la cita
-
-        return Ok(new { message = "El turno se eliminó correctamente." }); // retorna 200 con mensaje de exito
-    }
-
 
     [HttpGet("doctors")]
-    public ActionResult<List<Doctor>> GetAllDoctors(){
+    public ActionResult<List<Doctor>> GetAllDoctors_Patient(){
 
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
@@ -271,7 +249,7 @@ public class PatientController : ControllerBase{
     }
 
     [HttpGet("doctor/{id}")]
-    public ActionResult<Doctor> GetDoctorById(int id){ //Obtengo un Doctor por su ID
+    public ActionResult<Doctor> GetDoctorById_Patient(int id){ //Obtengo un Doctor por su ID
         
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
@@ -294,13 +272,129 @@ public class PatientController : ControllerBase{
 
 
 
+
+    /*----METODOS DE TURNOS PARA LOS USUARIOS----*/
+
     [HttpGet("specialties")] 
-    public ActionResult<IEnumerable<Specialty>> GetAllSpecialties() 
+    public ActionResult<IEnumerable<Specialty>> GetAllSpecialties_Patient() 
     {
         if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
 
         return Ok(_specialtyService.GetAll()); // retorna una lista de especialidades
     }
+
+
+
+    [HttpGet("{id}")] 
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public ActionResult<Appointment> GetAppointmentById(int id){
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
+        var appointment = _appointmentService.GetById(id); // busca la cita por id
+        
+        if (appointment == null){ // verifica si no se encontro la cita
+            return NotFound("Appointment not found"); // retorna 404 si no se encuentra
+        }
+        return Ok(appointment); // retorna la cita encontrada
+    }
+
+  
+    [HttpPost("appointment")] 
+    public ActionResult<Appointment> CreateAppointment([FromBody] AppointmentDTO appointmentDto){
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+        
+        try{
+
+            /* string userName = _accountService.GetUserName();
+
+            if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+
+            int? userId = (int)_patientService.GetId(userName);
+            if (!userId.HasValue) return BadRequest("No se encontro el Id del Paciente");
+
+            Appointment _appointment = _appointmentService.Create(appointmentDto);
+
+            return CreatedAtAction(nameof(GetAppointmentById), new { id = userId }, _appointment);
+        } */
+
+            string userName = _accountService.GetUserName();
+            if (string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
+            
+            int? userId = (int)_patientService.GetId(userName);
+            if (!userId.HasValue) return BadRequest("No se encontro el Id del Paciente");
+
+            appointmentDto.patient_id = (int)userId; //Esto es porque en el patientService es necesario validar si el paciente tiene turnos superpuestos
+
+            if(appointmentDto == null) return BadRequest("Appointment data is required.");
+            if(!ModelState.IsValid) return BadRequest(ModelState); // retorna 400 si hay errores en el modelo
+
+            Appointment _appointment = _appointmentService.Create(appointmentDto);
+
+            if(_appointment == null) return BadRequest("Error creating appointment.");
+
+            return CreatedAtAction(nameof(GetAppointmentById), new { id = _appointment.ID }, _appointment);
+
+        }    
+        catch (DbUpdateException ex){
+            // Aquí puedes registrar el detalle de la excepción o devolver una respuesta detallada
+            throw new Exception("Database update failed: " + ex.InnerException?.Message);
+        }
+        catch (Exception ex){
+            throw new Exception("An error occurred while creating the appointment: " + ex.Message);
+        }
+    }
+
+
+
+    [HttpDelete("appointment/{id}")]
+    public IActionResult DeleteAppointment(int id)
+    {
+
+        if (!User.IsInRole("patient") && !User.IsInRole("Patient") && !User.IsInRole("PATIENT")) return Forbid();
+
+        var appointment = _appointmentService.GetById(id); // busca la cita por id
+
+        // verifica si no se encontro la cita
+        if (appointment == null) return NotFound(); // devuelve 404 si no se encuentra
+
+        _appointmentService.Delete(id); // elimina la cita
+
+        return Ok(new { message = "El turno se eliminó correctamente." }); // retorna 200 con mensaje de exito
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /* [HttpGet("specialty/{id}")] 

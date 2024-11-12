@@ -37,26 +37,22 @@ public class AppointmentDbService : IAppointmentService
             !_context.Patient.Any(p => p.Id == appointmentDto.patient_id) ||
             !_context.Specialty.Any(s => s.Id == appointmentDto.specialty_id)){
 
-                throw new ArgumentException("Invalid foreign key(s) provided.");
+            throw new ArgumentException("Invalid foreign key(s) provided.");
         }
-
-        /*
-            Validar Existencia de las Claves Externas: Antes de crear una cita en el método del servicio, 
-            podrías verificar que doctor_id, patient_id, y specialty_id existen en sus respectivas tablas. 
-            Esto puede evitar errores de integridad de la base de datos.
-        */
 
 
         //Verifico si existe un turno para el doctor en la misma fecha y hora
         bool doctorConflict = _context.Appointment.Any(a =>
             a.doctor_id == appointmentDto.doctor_id && 
-            a.appointment_date == appointmentDto.appointment_date
+            a.appointment_date == appointmentDto.appointment_date &&
+            a.status != Appointment.AppointmentStatus.Canceled // Si el estado del turno es cancelado entonces si se puede hacer uno nuevo en el mismo horario
         );
 
         //Verifico si existe un turno para el paciente en la misma fecha y hora
         bool patientConflict = _context.Appointment.Any(a => 
             a.patient_id == appointmentDto.patient_id &&
-            a.appointment_date == appointmentDto.appointment_date
+            a.appointment_date == appointmentDto.appointment_date &&
+             a.status != Appointment.AppointmentStatus.Canceled // Aquí filtras los turnos cancelados
         );
 
         if(doctorConflict || patientConflict) throw new InvalidOperationException("The appointment overlaps with another already existing appointment");
@@ -104,3 +100,4 @@ public class AppointmentDbService : IAppointmentService
         return null;
     }
 }
+

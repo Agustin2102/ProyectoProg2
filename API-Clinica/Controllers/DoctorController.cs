@@ -18,7 +18,7 @@ public class DoctorController : ControllerBase{
     [Authorize(Roles = "doctor,Doctor,DOCTOR")]
 
 
-    [HttpGet("{id}")]
+    /* [HttpGet("{id}")]
     [ApiExplorerSettings(IgnoreApi = true)]
     //[Authorize(Roles = "admin")]
     public ActionResult<Doctor> GetById(int id){ //Obtengo un Doctor por su ID
@@ -28,7 +28,7 @@ public class DoctorController : ControllerBase{
 
         if(_doctor == null) return NotFound("Doctor not found");
         else return Ok(_doctor);
-    }
+    } */
 
 
     //Metodo Solo Para El Doctor
@@ -39,7 +39,6 @@ public class DoctorController : ControllerBase{
 
         try{
             string userName = _accountService.GetUserName();
-
             if(string.IsNullOrEmpty(userName)) return BadRequest("Could not access user's Claims");
 
             // Llama al servicio para buscar un doctor por su nombre
@@ -69,7 +68,7 @@ public class DoctorController : ControllerBase{
     }   
 
 
-    [HttpPut("doctor")]
+    /* [HttpPut("doctor")]
     //[Authorize(Roles = "admin")]
     public ActionResult<Doctor> UpdateDoctor(DoctorDTO d){
 
@@ -95,7 +94,7 @@ public class DoctorController : ControllerBase{
 
             return Problem(detail: e.Message, statusCode: 500);
         }
-    }
+    } */
 
 
     [HttpGet("appointments")]
